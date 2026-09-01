@@ -1,0 +1,46 @@
+{
+  "semi": false,
+  "printWidth": 100,
+  "trailingComma": "all",
+  "singleQuote": true,
+  "bracketSpacing": true,
+  "arrowParens": "avoid",
+  "bracketSameLine": false,
+  "plugins": ["@ianvs/prettier-plugin-sort-imports", "prettier-plugin-tailwindcss"],
+  "importOrder": [
+    "<BUILTIN_MODULES>",
+    "",
+    "^react$",
+    "^react-(.*)$",
+    "",
+    "^next$",
+    "^next/(.*)$",
+    "",
+    "<THIRD_PARTY_MODULES>",
+    "",
+    "^@kitchen/(.*)$",
+    "",
+    "^@/(.*)$",
+    "",
+    "^[../](.*)$",
+    "",
+    "^./(.*)$"
+  ],
+  "importOrderParserPlugins": ["typescript", "jsx"],
+  "importOrderTypeScriptVersion": "5.4.0",
+  "tailwindStylesheet": "./apps/web/src/styles/globals.css",
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx", "*.mts"],
+      "options": {
+        "parser": "typescript"
+      }
+    },
+    {
+      "files": ["*.js", "*.mjs", "*.cjs"],
+      "options": {
+        "importOrderParserPlugins": ["jsx"]
+      }
+    }
+  ]
+}

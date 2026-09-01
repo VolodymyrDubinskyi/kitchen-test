@@ -1,0 +1,10 @@
+{
+  "id": 195,
+  "title": "Fixture Product",
+  "price": 12.5,
+  "stock": 7,
+  "thumbnail": "https://cdn.dummyjson.com/product-images/beauty/essence-mascara-lash-princess/thumbnail.webp",
+  "description": "Captured from the live API",
+  "brand": "ACME",
+  "category": "beauty"
+}

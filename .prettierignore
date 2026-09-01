@@ -1,0 +1,9 @@
+node_modules
+dist
+coverage
+.next
+.nx/cache
+.nx/workspace-data
+yarn.lock
+next-env.d.ts
+.vscode

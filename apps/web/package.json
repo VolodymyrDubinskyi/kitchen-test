@@ -1,0 +1,25 @@
+{
+  "name": "@kitchen/web",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "next": "~16.1.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "nx": {
+    "name": "web",
+    "tags": [
+      "type:app"
+    ],
+    "targets": {
+      "typecheck": {
+        "command": "tsc --noEmit -p tsconfig.json",
+        "options": {
+          "cwd": "apps/web"
+        },
+        "cache": true
+      }
+    }
+  }
+}

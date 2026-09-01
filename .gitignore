@@ -1,0 +1,52 @@
+# compiled output
+dist
+tmp
+out-tsc
+out
+
+# dependencies
+node_modules
+.yarn/install-state.gz
+.yarn/cache
+
+# nx
+.nx
+.nx/cache
+.nx/workspace-data
+.nx/migrate-runs
+
+# next
+.next
+next-env.d.ts
+
+# typescript
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+tsconfig.build.tsbuildinfo
+
+# tests
+coverage
+vite.config.*.timestamp*
+vitest.config.*.timestamp*
+
+# env
+.env
+.env.local
+.env.*.local
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+*.launch
+.settings/
+*.sublime-workspace
+.vscode
+
+# logs
+npm-debug.log
+yarn-error.log
+
+# system
+.DS_Store
+Thumbs.db
