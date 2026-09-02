@@ -111,6 +111,13 @@ describe('productInputSchema', () => {
     )
   })
 
+  it.each([
+    ['an empty number input', undefined],
+    ['text typed into a number input', 'abc'],
+  ])('explains %s in words rather than type jargon', (_label, price) => {
+    expect(messagesFor({ ...validInput, price })).toContain('Price must be a number')
+  })
+
   it('reports every invalid field at once, not just the first', () => {
     const messages = messagesFor({
       title: '',

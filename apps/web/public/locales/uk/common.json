@@ -1,0 +1,81 @@
+{
+  "app": {
+    "title": "Kitchen"
+  },
+  "nav": {
+    "products": "Товари",
+    "newProduct": "Новий товар"
+  },
+  "theme": {
+    "label": "Тема",
+    "light": "Світла",
+    "dark": "Темна"
+  },
+  "language": {
+    "label": "Мова",
+    "en": "Англійська",
+    "uk": "Українська"
+  },
+  "products": {
+    "searchLabel": "Пошук",
+    "searchPlaceholder": "Пошук товарів",
+    "loading": "Завантажуємо товари…",
+    "empty": "Нічого не знайдено.",
+    "brand": "Бренд",
+    "category": "Категорія",
+    "rating": "Рейтинг",
+    "stock": "На складі",
+    "stockCount_one": "залишився {{count}} товар",
+    "stockCount_few": "залишилося {{count}} товари",
+    "stockCount_many": "залишилося {{count}} товарів",
+    "stockCount_other": "залишилося {{count}} товару",
+    "outOfStock": "Немає в наявності",
+    "edit": "Змінити",
+    "delete": "Видалити",
+    "back": "До списку товарів",
+    "detailTitle": "Картка товару",
+    "emptyPage": "Ця сторінка порожня."
+  },
+  "pagination": {
+    "previous": "Назад",
+    "next": "Вперед",
+    "status": "Сторінка {{page}} з {{pageCount}}"
+  },
+  "form": {
+    "createTitle": "Новий товар",
+    "editTitle": "Редагування товару",
+    "title": "Назва",
+    "description": "Опис",
+    "category": "Категорія",
+    "price": "Ціна",
+    "stock": "Залишок",
+    "brandOptional": "Бренд (необов’язково)",
+    "thumbnail": "Посилання на зображення",
+    "submitCreate": "Створити товар",
+    "submitUpdate": "Зберегти",
+    "submitting": "Зберігаємо…",
+    "cancel": "Скасувати"
+  },
+  "confirm": {
+    "deleteTitle": "Видалити товар?",
+    "deleteBody": "«{{title}}» зникне зі списку.",
+    "confirm": "Видалити",
+    "cancel": "Скасувати"
+  },
+  "notice": {
+    "readOnlyApi": "dummyJSON приймає запити на зміну, але не зберігає їх, тож створені, змінені та видалені товари не з’являться у цьому списку."
+  },
+  "errors": {
+    "generic": "Щось пішло не так. Спробуйте ще раз.",
+    "loadProducts": "Не вдалося завантажити список товарів.",
+    "loadProduct": "Не вдалося завантажити товар.",
+    "retry": "Повторити",
+    "pageNotFound": "Такої сторінки не існує"
+  },
+  "toast": {
+    "created": "Товар створено",
+    "updated": "Товар оновлено",
+    "deleted": "Товар видалено",
+    "dismiss": "Закрити"
+  }
+}

@@ -1,9 +1,9 @@
 # Kitchen
 
-Products CRUD over the public [dummyJSON](https://dummyjson.com/docs/products) API.
+Products CRUD over the public [dummyJSON](https://dummyjson.com/docs/products) API — list, detail,
+create, edit and delete, with light/dark theming and English/Ukrainian localisation.
 
-This is the initial structure of the project — an Nx monorepo with a Next.js application,
-tooling and tests wired up. The product features are not implemented yet.
+Next.js (Pages Router) in an Nx monorepo, Yarn 4 workspaces, TypeScript strict.
 
 ## Requirements
 
@@ -18,7 +18,7 @@ cp .env.example .env
 yarn dev
 ```
 
-The app runs on http://localhost:3000.
+The app runs on http://localhost:3000. Ukrainian is at `/uk`.
 
 ## Commands
 
@@ -31,3 +31,19 @@ The app runs on http://localhost:3000.
 | `yarn lint`      | ESLint across the workspace |
 | `yarn typecheck` | `tsc` across the workspace  |
 | `yarn format`    | Prettier write              |
+
+## Structure
+
+```
+apps/web/
+  src/pages/             routes and API routes
+  src/server/            server-only: dummyJSON adapter and HTTP helpers
+  src/features/products/ api (fetchers, query keys, hooks), model (URL params hook), ui
+  src/shared/            theme, toasts, i18n, hooks, UI primitives
+libs/schemas/           zod schemas and domain types, shared by server and client
+libs/utils/             ApiError and formatters
+libs/testing/           payloads captured from the live API, MSW handlers, Vitest setup
+```
+
+Layering is enforced at lint time by `@nx/enforce-module-boundaries` project tags, and
+`no-restricted-imports` keeps `@kitchen/testing` out of production code.

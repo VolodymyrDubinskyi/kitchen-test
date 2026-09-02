@@ -1,0 +1,79 @@
+{
+  "app": {
+    "title": "Kitchen"
+  },
+  "nav": {
+    "products": "Products",
+    "newProduct": "New product"
+  },
+  "theme": {
+    "label": "Theme",
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "uk": "Ukrainian"
+  },
+  "products": {
+    "searchLabel": "Search",
+    "searchPlaceholder": "Search products",
+    "loading": "Loading products…",
+    "empty": "No products match your search.",
+    "brand": "Brand",
+    "category": "Category",
+    "rating": "Rating",
+    "stock": "In stock",
+    "stockCount_one": "{{count}} item left",
+    "stockCount_other": "{{count}} items left",
+    "outOfStock": "Out of stock",
+    "edit": "Edit",
+    "delete": "Delete",
+    "back": "Back to products",
+    "detailTitle": "Product details",
+    "emptyPage": "This page is empty."
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "status": "Page {{page}} of {{pageCount}}"
+  },
+  "form": {
+    "createTitle": "New product",
+    "editTitle": "Edit product",
+    "title": "Title",
+    "description": "Description",
+    "category": "Category",
+    "price": "Price",
+    "stock": "Stock",
+    "brandOptional": "Brand (optional)",
+    "thumbnail": "Thumbnail URL",
+    "submitCreate": "Create product",
+    "submitUpdate": "Save changes",
+    "submitting": "Saving…",
+    "cancel": "Cancel"
+  },
+  "confirm": {
+    "deleteTitle": "Delete this product?",
+    "deleteBody": "\"{{title}}\" will be removed from the list.",
+    "confirm": "Delete",
+    "cancel": "Cancel"
+  },
+  "notice": {
+    "readOnlyApi": "dummyJSON accepts writes but does not store them, so created, edited and deleted products will not show up in this list."
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "loadProducts": "The product list could not be loaded.",
+    "loadProduct": "This product could not be loaded.",
+    "retry": "Try again",
+    "pageNotFound": "This page does not exist"
+  },
+  "toast": {
+    "created": "Product created",
+    "updated": "Product updated",
+    "deleted": "Product deleted",
+    "dismiss": "Dismiss"
+  }
+}

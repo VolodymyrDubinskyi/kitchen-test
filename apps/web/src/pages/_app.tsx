@@ -5,20 +5,39 @@ import Head from 'next/head'
 
 import { QueryClientProvider } from '@tanstack/react-query'
 
+import nextI18NextConfig from '../../next-i18next.config'
 import { createQueryClient } from '../lib/query-client'
+import { appWithTranslation } from '../shared/i18n'
+import { ThemeProvider, type Theme } from '../shared/theme/theme-context'
+import { ToastProvider } from '../shared/toast/toast-context'
+import { AppError } from '../shared/ui/app-error'
+import { ErrorBoundary } from '../shared/ui/error-boundary'
+import { Toaster } from '../shared/ui/toaster'
 
 import '../styles/globals.css'
 
-export default function App({ Component, pageProps }: AppProps) {
+type SharedProps = {
+  theme?: Theme
+}
+
+function App({ Component, pageProps }: AppProps<SharedProps>) {
   const [queryClient] = useState(createQueryClient)
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Head>
-        <title>Kitchen — Products</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </Head>
-      <Component {...pageProps} />
+      <ThemeProvider initialTheme={pageProps.theme}>
+        <ToastProvider>
+          <Head>
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
+          </Head>
+          <ErrorBoundary fallback={<AppError />}>
+            <Component {...pageProps} />
+          </ErrorBoundary>
+          <Toaster />
+        </ToastProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   )
 }
+
+export default appWithTranslation(App, nextI18NextConfig)

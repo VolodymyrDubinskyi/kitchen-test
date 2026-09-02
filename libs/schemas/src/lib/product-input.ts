@@ -25,8 +25,11 @@ export const productInputSchema = z.object({
       `Description must be at most ${DESCRIPTION_MAX_LENGTH} characters`,
     ),
   category: z.string().trim().min(1, 'Category is required'),
-  price: z.number().positive('Price must be greater than 0'),
-  stock: z.number().int('Stock must be a whole number').nonnegative('Stock cannot be negative'),
+  price: z.number({ error: 'Price must be a number' }).positive('Price must be greater than 0'),
+  stock: z
+    .number({ error: 'Stock must be a number' })
+    .int('Stock must be a whole number')
+    .nonnegative('Stock cannot be negative'),
   brand: z
     .string()
     .trim()

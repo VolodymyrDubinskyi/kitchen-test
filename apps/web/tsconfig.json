@@ -19,8 +19,6 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "outDir": "dist",
-    "rootDir": "src",
     "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
   },
   "include": [
@@ -29,7 +27,8 @@
     "src/**/*.js",
     "src/**/*.jsx",
     "next-env.d.ts",
-    "index.d.ts"
+    "index.d.ts",
+    "next-i18next.config.js"
   ],
   "exclude": [
     "out-tsc",
