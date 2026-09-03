@@ -1,10 +1,11 @@
-import { useState, type ChangeEvent } from 'react'
+import type { ChangeEvent } from 'react'
 
 import { useTranslation } from '../../../shared/i18n'
 import { Button } from '../../../shared/ui/button'
 import { ConfirmDialog } from '../../../shared/ui/confirm-dialog'
 import { TextField } from '../../../shared/ui/field'
-import { useDeleteProduct, useProductPage, type ServerRenderedPage } from '../api/hooks'
+import { useProductPage, type ServerRenderedPage } from '../api/hooks'
+import { useProductDeletion } from '../model/use-product-deletion'
 import { useProductListParams } from '../model/use-product-list-params'
 import { ProductCard } from './product-card'
 
@@ -17,10 +18,8 @@ export function ProductList({
 }) {
   const { t } = useTranslation('common')
   const { params, searchInput, setSearchInput, goToPage } = useProductListParams()
-  const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null)
-
   const { data: page, isError, isFetching, refetch } = useProductPage(params, server)
-  const remove = useDeleteProduct()
+  const deletion = useProductDeletion(page?.products)
 
   const failed = isError || (loadFailed && !page)
 
@@ -28,18 +27,8 @@ export function ProductList({
   const changeSearch = (event: ChangeEvent<HTMLInputElement>) => setSearchInput(event.target.value)
   const goToPreviousPage = () => goToPage(params.page - 1)
   const goToNextPage = () => goToPage(params.page + 1)
-  const closeDeleteDialog = () => setPendingDeleteId(null)
-
-  const confirmDelete = () => {
-    if (pendingDeleteId === null) {
-      return
-    }
-
-    remove.mutate(pendingDeleteId, { onSettled: closeDeleteDialog })
-  }
 
   const pageCount = page?.pageCount ?? 1
-  const pendingDelete = page?.products.find(product => product.id === pendingDeleteId) ?? null
   const isEmpty = Boolean(page) && page?.products.length === 0
   const emptyMessage = params.search ? t('products.empty') : t('products.emptyPage')
 
@@ -74,8 +63,8 @@ export function ProductList({
           <ProductCard
             key={product.id}
             product={product}
-            deleting={remove.isPending && pendingDeleteId === product.id}
-            onDelete={setPendingDeleteId}
+            deleting={deletion.isDeleting(product.id)}
+            onDelete={deletion.request}
           />
         ))}
       </div>
@@ -103,14 +92,14 @@ export function ProductList({
       </div>
 
       <ConfirmDialog
-        open={pendingDelete !== null}
+        open={deletion.pending !== null}
         title={t('confirm.deleteTitle')}
-        body={t('confirm.deleteBody', { title: pendingDelete?.title ?? '' })}
+        body={t('confirm.deleteBody', { title: deletion.pending?.title ?? '' })}
         confirmLabel={t('confirm.confirm')}
         cancelLabel={t('confirm.cancel')}
-        pending={remove.isPending}
-        onCancel={closeDeleteDialog}
-        onConfirm={confirmDelete}
+        pending={deletion.pending !== null && deletion.isDeleting(deletion.pending.id)}
+        onCancel={deletion.cancel}
+        onConfirm={deletion.confirm}
       />
     </div>
   )

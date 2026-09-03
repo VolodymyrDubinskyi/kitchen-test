@@ -15,8 +15,8 @@ export function ProductGallery({ product }: { product: Product }) {
   const current = sources[selected] ?? sources[0]
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="aspect-square w-full max-w-xs overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800">
+    <div className="flex w-full max-w-xs shrink-0 flex-col gap-3">
+      <div className="aspect-square w-full overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800">
         <ProductImage
           src={current}
           alt={product.title}
