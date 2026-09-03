@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { HTTP_PROTOCOL } from './url'
+import { imageSourceSchema } from './url'
 
 export const TITLE_MAX_LENGTH = 120
 export const DESCRIPTION_MIN_LENGTH = 10
@@ -35,10 +35,7 @@ export const productInputSchema = z.object({
     .trim()
     .max(BRAND_MAX_LENGTH, `Brand must be at most ${BRAND_MAX_LENGTH} characters`)
     .optional(),
-  thumbnail: z.url({
-    protocol: HTTP_PROTOCOL,
-    error: 'Thumbnail must be an http or https URL',
-  }),
+  thumbnail: imageSourceSchema('Thumbnail must be an http or https URL, or an uploaded image'),
 })
 
 export type ProductInput = z.infer<typeof productInputSchema>

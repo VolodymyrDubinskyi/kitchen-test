@@ -45,7 +45,9 @@ describe('ProductForm', () => {
     expect(screen.getByText('Description must be at least 10 characters')).toBeInTheDocument()
     expect(screen.getByText('Category is required')).toBeInTheDocument()
     expect(screen.getByText('Price must be a number')).toBeInTheDocument()
-    expect(screen.getByText('Thumbnail must be an http or https URL')).toBeInTheDocument()
+    expect(
+      screen.getByText('Thumbnail must be an http or https URL, or an uploaded image'),
+    ).toBeInTheDocument()
     expect(onSubmit).not.toHaveBeenCalled()
   })
 
@@ -59,14 +61,16 @@ describe('ProductForm', () => {
     })
   })
 
-  it('rejects a thumbnail that is not an http url', async () => {
+  it('rejects a thumbnail that is neither an http url nor an uploaded image', async () => {
     const { user } = setup()
 
     await user.type(screen.getByLabelText('Thumbnail URL'), 'javascript:alert(1)')
     await user.click(screen.getByRole('button', { name: 'Create product' }))
 
     await waitFor(() => {
-      expect(screen.getByText('Thumbnail must be an http or https URL')).toBeInTheDocument()
+      expect(
+        screen.getByText('Thumbnail must be an http or https URL, or an uploaded image'),
+      ).toBeInTheDocument()
     })
   })
 
@@ -147,6 +151,45 @@ describe('ProductForm', () => {
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
 
     expect(onSubmit).toHaveBeenCalledWith(expect.objectContaining({ price: 12 }), expect.anything())
+  })
+
+  it('puts the uploaded image into the thumbnail field', async () => {
+    const onUploadImage = vi
+      .fn()
+      .mockResolvedValue('/api/uploads/2f1c7d9e-4a3b-4c5d-8e6f-0a1b2c3d4e5f')
+    const { user } = setup({ onUploadImage })
+
+    const file = new File(['fake-bytes'], 'photo.png', { type: 'image/png' })
+
+    await user.upload(screen.getByLabelText('Upload an image'), file)
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Thumbnail URL')).toHaveValue(
+        '/api/uploads/2f1c7d9e-4a3b-4c5d-8e6f-0a1b2c3d4e5f',
+      )
+    })
+
+    expect(onUploadImage).toHaveBeenCalledWith(file)
+  })
+
+  it('leaves the field untouched when the upload fails', async () => {
+    const onUploadImage = vi.fn().mockRejectedValue(new Error('nope'))
+    const { user } = setup({ onUploadImage })
+
+    await user.upload(
+      screen.getByLabelText('Upload an image'),
+      new File(['x'], 'photo.png', { type: 'image/png' }),
+    )
+
+    await waitFor(() => expect(onUploadImage).toHaveBeenCalledOnce())
+
+    expect(screen.getByLabelText('Thumbnail URL')).toHaveValue('')
+  })
+
+  it('disables the picker when no upload handler is wired', () => {
+    setup()
+
+    expect(screen.getByLabelText('Upload an image')).toBeDisabled()
   })
 
   it('disables both actions while a submission is in flight', () => {

@@ -1,8 +1,14 @@
 import Image from 'next/image'
 
+import { isImageSource, isUploadPath } from '@kitchen/schemas'
+
 const OPTIMIZED_HOST = 'cdn.dummyjson.com'
 
 function isOptimizable(src: string): boolean {
+  if (isUploadPath(src)) {
+    return false
+  }
+
   try {
     return new URL(src).hostname === OPTIMIZED_HOST
   } catch {
@@ -23,6 +29,16 @@ export function ProductImage({
   height: number
   className?: string
 }) {
+  if (!isImageSource(src)) {
+    return (
+      <div
+        role="presentation"
+        style={{ width, height }}
+        className={`shrink-0 rounded-md bg-zinc-200 dark:bg-zinc-800 ${className ?? ''}`}
+      />
+    )
+  }
+
   return (
     <Image
       src={src}

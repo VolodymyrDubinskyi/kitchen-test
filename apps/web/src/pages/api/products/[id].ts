@@ -1,8 +1,8 @@
 import { productIdSchema, productInputSchema } from '@kitchen/schemas'
 import { ApiError } from '@kitchen/utils'
 
-import { deleteProduct, fetchProduct, updateProduct } from '../../../server/dummyjson/products'
 import { createApiHandler } from '../../../server/http/api-handler'
+import { deleteProduct, getProduct, updateProduct } from '../../../server/products/service'
 
 const BAD_REQUEST = 400
 
@@ -18,7 +18,7 @@ function parseProductId(value: unknown): number {
 
 export default createApiHandler({
   GET: async (req, res) => {
-    res.status(200).json(await fetchProduct(parseProductId(req.query.id)))
+    res.status(200).json(await getProduct(parseProductId(req.query.id)))
   },
   PUT: async (req, res) => {
     const id = parseProductId(req.query.id)

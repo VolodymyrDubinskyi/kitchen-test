@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { httpUrlSchema } from './url'
+import { httpUrlSchema, imageSourceSchema } from './url'
 
 export const productSchema = z.object({
   id: z.number().int().positive(),
@@ -11,7 +11,7 @@ export const productSchema = z.object({
   rating: z.number().min(0).max(5),
   stock: z.number().int().nonnegative(),
   brand: z.string().optional(),
-  thumbnail: httpUrlSchema,
+  thumbnail: imageSourceSchema('Thumbnail must be an http or https URL, or an uploaded image'),
   images: z.array(httpUrlSchema).default([]),
 })
 

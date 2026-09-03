@@ -4,7 +4,7 @@ import { useRouter } from 'next/router'
 
 import type { ProductInput } from '@kitchen/schemas'
 
-import { useCreateProduct } from '../../features/products/api/hooks'
+import { useCreateProduct, useUploadImage } from '../../features/products/api/hooks'
 import { ProductForm } from '../../features/products/ui/product-form'
 import { sharedPageProps, type SharedPageProps } from '../../server/page-props'
 import { useTranslation } from '../../shared/i18n'
@@ -18,6 +18,7 @@ export default function NewProductPage() {
   const { t } = useTranslation('common')
   const router = useRouter()
   const create = useCreateProduct()
+  const upload = useUploadImage()
 
   const goToList = () => void router.push('/')
   const submit = (input: ProductInput) => create.mutate(input, { onSuccess: goToList })
@@ -33,6 +34,8 @@ export default function NewProductPage() {
         pending={create.isPending}
         onCancel={goToList}
         onSubmit={submit}
+        uploading={upload.isPending}
+        onUploadImage={upload.mutateAsync}
       />
     </Layout>
   )

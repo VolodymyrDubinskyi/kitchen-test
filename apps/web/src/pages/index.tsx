@@ -1,12 +1,13 @@
 import type { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import Head from 'next/head'
 
-import { productListParamsSchema, PRODUCTS_PAGE_SIZE } from '@kitchen/schemas'
+import { productListParamsSchema } from '@kitchen/schemas'
 
 import type { ServerRenderedPage } from '../features/products/api/hooks'
+import { listHref } from '../features/products/model/list-route'
 import { ProductList } from '../features/products/ui/product-list'
-import { fetchProductPage } from '../server/dummyjson/products'
 import { sharedPageProps, type SharedPageProps } from '../server/page-props'
+import { listProducts } from '../server/products/service'
 import { useTranslation } from '../shared/i18n'
 import { Layout } from '../shared/ui/layout'
 
@@ -19,20 +20,15 @@ export const getServerSideProps: GetServerSideProps<Props> = async ctx => {
   const shared = await sharedPageProps(ctx)
 
   try {
-    const page = await fetchProductPage(params)
-    const pageCount = Math.max(1, Math.ceil(page.total / PRODUCTS_PAGE_SIZE))
+    const list = await listProducts(params)
 
-    if (params.page > pageCount) {
-      const query = new URLSearchParams({ page: String(pageCount) })
-
-      if (params.search) {
-        query.set('search', params.search)
+    if (list.page !== params.page) {
+      return {
+        redirect: { destination: listHref({ ...params, page: list.page }), permanent: false },
       }
-
-      return { redirect: { destination: `/?${query.toString()}`, permanent: false } }
     }
 
-    return { props: { ...shared, server: { params, page, fetchedAt: Date.now() } } }
+    return { props: { ...shared, server: { params, list, fetchedAt: Date.now() } } }
   } catch (error) {
     console.error('Server-side product list failed', error)
 

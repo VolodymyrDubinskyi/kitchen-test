@@ -1,7 +1,8 @@
 import { act, renderHook } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { listQuery, SEARCH_DEBOUNCE_MS, useProductListParams } from './use-product-list-params'
+import { listQuery } from './list-route'
+import { SEARCH_DEBOUNCE_MS, useProductListParams } from './use-product-list-params'
 
 type Navigation = { pathname: string; query: Record<string, string> }
 

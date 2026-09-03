@@ -1,14 +1,12 @@
-import type { ZodType } from 'zod'
+import { z, type ZodType } from 'zod'
 
 import {
-  productPageSchema,
+  productListResponseSchema,
   productSchema,
-  productWriteResponseSchema,
   type Product,
   type ProductInput,
   type ProductListParams,
-  type ProductPage,
-  type ProductWriteResponse,
+  type ProductListResponse,
 } from '@kitchen/schemas'
 import { ApiError } from '@kitchen/utils'
 
@@ -74,22 +72,45 @@ function listQuery({ page, search }: ProductListParams): string {
 export function fetchProductPage(
   params: ProductListParams,
   signal?: AbortSignal,
-): Promise<ProductPage> {
-  return request(`/products?${listQuery(params)}`, productPageSchema, { signal })
+): Promise<ProductListResponse> {
+  return request(`/products?${listQuery(params)}`, productListResponseSchema, { signal })
 }
 
 export function fetchProduct(id: number, signal?: AbortSignal): Promise<Product> {
   return request(`/products/${id}`, productSchema, { signal })
 }
 
-export function createProduct(input: ProductInput): Promise<ProductWriteResponse> {
-  return request('/products', productWriteResponseSchema, { method: 'POST', json: input })
+export function createProduct(input: ProductInput): Promise<Product> {
+  return request('/products', productSchema, { method: 'POST', json: input })
 }
 
-export function updateProduct(id: number, input: ProductInput): Promise<ProductWriteResponse> {
-  return request(`/products/${id}`, productWriteResponseSchema, { method: 'PUT', json: input })
+export function updateProduct(id: number, input: ProductInput): Promise<Product> {
+  return request(`/products/${id}`, productSchema, { method: 'PUT', json: input })
 }
 
-export function deleteProduct(id: number): Promise<ProductWriteResponse> {
-  return request(`/products/${id}`, productWriteResponseSchema, { method: 'DELETE' })
+export function deleteProduct(id: number): Promise<Product> {
+  return request(`/products/${id}`, productSchema, { method: 'DELETE' })
+}
+
+const uploadResponseSchema = z.object({ url: z.string() })
+
+export async function uploadImage(file: File, signal?: AbortSignal): Promise<string> {
+  const response = await fetch('/api/uploads', {
+    method: 'POST',
+    body: file,
+    headers: { 'content-type': file.type },
+    signal,
+  })
+
+  if (!response.ok) {
+    throw new ApiError(response.status, await readErrorMessage(response))
+  }
+
+  const parsed = uploadResponseSchema.safeParse(await response.json())
+
+  if (!parsed.success) {
+    throw new ApiError(UNEXPECTED, 'The server returned an unexpected payload')
+  }
+
+  return parsed.data.url
 }

@@ -5,10 +5,10 @@ import { useRouter } from 'next/router'
 import { productIdSchema, type Product, type ProductInput } from '@kitchen/schemas'
 import { isApiError } from '@kitchen/utils'
 
-import { useProduct, useUpdateProduct } from '../../../features/products/api/hooks'
+import { useProduct, useUpdateProduct, useUploadImage } from '../../../features/products/api/hooks'
 import { ProductForm } from '../../../features/products/ui/product-form'
-import { fetchProduct } from '../../../server/dummyjson/products'
 import { sharedPageProps, type SharedPageProps } from '../../../server/page-props'
+import { getProduct } from '../../../server/products/service'
 import { useTranslation } from '../../../shared/i18n'
 import { Layout } from '../../../shared/ui/layout'
 
@@ -30,7 +30,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ctx => {
 
   try {
     return {
-      props: { ...shared, id: parsedId.data, initialProduct: await fetchProduct(parsedId.data) },
+      props: { ...shared, id: parsedId.data, initialProduct: await getProduct(parsedId.data) },
     }
   } catch (error) {
     if (isApiError(error) && error.status === NOT_FOUND) {
@@ -63,6 +63,7 @@ export default function EditProductPage({
   const router = useRouter()
   const { data: product } = useProduct(id, initialProduct ?? undefined)
   const update = useUpdateProduct(id)
+  const upload = useUploadImage()
 
   const goToProduct = () => void router.push(`/products/${id}`)
   const submit = (input: ProductInput) => update.mutate(input, { onSuccess: goToProduct })
@@ -83,6 +84,8 @@ export default function EditProductPage({
           pending={update.isPending}
           onCancel={goToProduct}
           onSubmit={submit}
+          uploading={upload.isPending}
+          onUploadImage={upload.mutateAsync}
         />
       )}
     </Layout>

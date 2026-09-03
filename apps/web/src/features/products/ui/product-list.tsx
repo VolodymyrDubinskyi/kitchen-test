@@ -1,7 +1,5 @@
 import { useState, type ChangeEvent } from 'react'
 
-import { PRODUCTS_PAGE_SIZE } from '@kitchen/schemas'
-
 import { useTranslation } from '../../../shared/i18n'
 import { Button } from '../../../shared/ui/button'
 import { ConfirmDialog } from '../../../shared/ui/confirm-dialog'
@@ -40,7 +38,7 @@ export function ProductList({
     remove.mutate(pendingDeleteId, { onSettled: closeDeleteDialog })
   }
 
-  const pageCount = page ? Math.max(1, Math.ceil(page.total / PRODUCTS_PAGE_SIZE)) : 1
+  const pageCount = page?.pageCount ?? 1
   const pendingDelete = page?.products.find(product => product.id === pendingDeleteId) ?? null
   const isEmpty = Boolean(page) && page?.products.length === 0
   const emptyMessage = params.search ? t('products.empty') : t('products.emptyPage')
@@ -54,10 +52,6 @@ export function ProductList({
         value={searchInput}
         onChange={changeSearch}
       />
-
-      <p className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:bg-amber-950 dark:text-amber-100">
-        {t('notice.readOnlyApi')}
-      </p>
 
       {failed ? (
         <div className="flex flex-col items-start gap-3 rounded-md border border-red-300 p-4 dark:border-red-900">

@@ -8,8 +8,8 @@ import { formatPrice, isApiError } from '@kitchen/utils'
 
 import { useProduct } from '../../features/products/api/hooks'
 import { ProductImage } from '../../features/products/ui/product-image'
-import { fetchProduct } from '../../server/dummyjson/products'
 import { sharedPageProps, type SharedPageProps } from '../../server/page-props'
+import { getProduct } from '../../server/products/service'
 import { useTranslation } from '../../shared/i18n'
 import { Layout } from '../../shared/ui/layout'
 import { LinkButton } from '../../shared/ui/link-button'
@@ -32,7 +32,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ctx => {
 
   try {
     return {
-      props: { ...shared, id: parsedId.data, initialProduct: await fetchProduct(parsedId.data) },
+      props: { ...shared, id: parsedId.data, initialProduct: await getProduct(parsedId.data) },
     }
   } catch (error) {
     if (isApiError(error) && error.status === NOT_FOUND) {

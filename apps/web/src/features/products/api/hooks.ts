@@ -1,6 +1,11 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
-import type { Product, ProductInput, ProductListParams, ProductPage } from '@kitchen/schemas'
+import type {
+  Product,
+  ProductInput,
+  ProductListParams,
+  ProductListResponse,
+} from '@kitchen/schemas'
 import { isApiError } from '@kitchen/utils'
 
 import { useTranslation } from '../../../shared/i18n'
@@ -10,7 +15,7 @@ import { productKeys } from './query-keys'
 
 export type ServerRenderedPage = {
   params: ProductListParams
-  page: ProductPage
+  list: ProductListResponse
   fetchedAt: number
 }
 
@@ -19,7 +24,7 @@ function seedFor(params: ProductListParams, server: ServerRenderedPage | undefin
     return {}
   }
 
-  return { initialData: server.page, initialDataUpdatedAt: server.fetchedAt }
+  return { initialData: server.list, initialDataUpdatedAt: server.fetchedAt }
 }
 
 export function useProductPage(params: ProductListParams, server?: ServerRenderedPage) {
@@ -71,9 +76,10 @@ export function useUpdateProduct(id: number) {
 
   return useMutation({
     mutationFn: (input: ProductInput) => api.updateProduct(id, input),
-    onSuccess: () => {
+    onSuccess: product => {
+      queryClient.setQueryData(productKeys.detail(id), product)
       toast.showSuccess(t('toast.updated'))
-      void queryClient.invalidateQueries({ queryKey: productKeys.all })
+      void queryClient.invalidateQueries({ queryKey: productKeys.lists() })
     },
     onError,
   })
@@ -90,6 +96,15 @@ export function useDeleteProduct() {
       toast.showSuccess(t('toast.deleted'))
       void queryClient.invalidateQueries({ queryKey: productKeys.lists() })
     },
+    onError,
+  })
+}
+
+export function useUploadImage() {
+  const { onError } = useMutationFeedback()
+
+  return useMutation({
+    mutationFn: (file: File) => api.uploadImage(file),
     onError,
   })
 }

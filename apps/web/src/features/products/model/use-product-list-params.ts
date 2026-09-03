@@ -5,24 +5,9 @@ import { useRouter } from 'next/router'
 import { productListParamsSchema, type ProductListParams } from '@kitchen/schemas'
 
 import { useDebouncedValue } from '../../../shared/hooks/use-debounced-value'
+import { LIST_PATHNAME, listQuery } from './list-route'
 
 export const SEARCH_DEBOUNCE_MS = 350
-
-const LIST_PATHNAME = '/'
-
-export function listQuery(params: ProductListParams): Record<string, string> {
-  const query: Record<string, string> = {}
-
-  if (params.page > 1) {
-    query.page = String(params.page)
-  }
-
-  if (params.search) {
-    query.search = params.search
-  }
-
-  return query
-}
 
 export type ProductListParamsApi = {
   params: ProductListParams

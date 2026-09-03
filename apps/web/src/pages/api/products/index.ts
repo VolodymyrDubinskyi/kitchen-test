@@ -1,11 +1,11 @@
 import { productInputSchema, productListParamsSchema } from '@kitchen/schemas'
 
-import { createProduct, fetchProductPage } from '../../../server/dummyjson/products'
 import { createApiHandler } from '../../../server/http/api-handler'
+import { createProduct, listProducts } from '../../../server/products/service'
 
 export default createApiHandler({
   GET: async (req, res) => {
-    res.status(200).json(await fetchProductPage(productListParamsSchema.parse(req.query)))
+    res.status(200).json(await listProducts(productListParamsSchema.parse(req.query)))
   },
   POST: async (req, res) => {
     res.status(201).json(await createProduct(productInputSchema.parse(req.body)))

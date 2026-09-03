@@ -59,6 +59,12 @@ describe('productSchema', () => {
     expect(result.error?.issues.map(issue => issue.path.join('.'))).toEqual(['rating'])
   })
 
+  it('accepts an uploaded image path, because the app serves those itself', () => {
+    const thumbnail = '/api/uploads/2f1c7d9e-4a3b-4c5d-8e6f-0a1b2c3d4e5f'
+
+    expect(productSchema.safeParse({ ...product, thumbnail }).success).toBe(true)
+  })
+
   it.each([
     ['a javascript: url', 'javascript:alert(1)'],
     ['a data: url', 'data:image/png;base64,AAAA'],

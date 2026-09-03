@@ -52,16 +52,16 @@
     "submitCreate": "Create product",
     "submitUpdate": "Save changes",
     "submitting": "Saving…",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "uploadImage": "Upload an image",
+    "uploading": "Uploading…",
+    "thumbnailPreview": "Thumbnail preview"
   },
   "confirm": {
     "deleteTitle": "Delete this product?",
     "deleteBody": "\"{{title}}\" will be removed from the list.",
     "confirm": "Delete",
     "cancel": "Cancel"
-  },
-  "notice": {
-    "readOnlyApi": "dummyJSON accepts writes but does not store them, so created, edited and deleted products will not show up in this list."
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",

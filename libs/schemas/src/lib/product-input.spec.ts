@@ -101,13 +101,21 @@ describe('productInputSchema', () => {
   })
 
   it.each([
+    ['an uploaded image path', '/api/uploads/2f1c7d9e-4a3b-4c5d-8e6f-0a1b2c3d4e5f'],
+    ['an https url', 'https://cdn.dummyjson.com/x.webp'],
+  ])('accepts %s as a thumbnail', (_label, thumbnail) => {
+    expect(productInputSchema.safeParse({ ...validInput, thumbnail }).success).toBe(true)
+  })
+
+  it.each([
     ['a javascript: url', 'javascript:alert(1)'],
     ['a data: url', 'data:image/png;base64,AAAA'],
-    ['a relative path', '/images/thumb.png'],
+    ['an arbitrary relative path', '/images/thumb.png'],
+    ['an upload path with a forged id', '/api/uploads/../../etc/passwd'],
     ['plain text', 'not a url'],
   ])('rejects %s as a thumbnail', (_label, thumbnail) => {
     expect(messagesFor({ ...validInput, thumbnail })).toContain(
-      'Thumbnail must be an http or https URL',
+      'Thumbnail must be an http or https URL, or an uploaded image',
     )
   })
 
