@@ -17,6 +17,7 @@ export default function NotFoundPage() {
     <Layout>
       <Head>
         <title>{`${t('errors.pageNotFound')} — ${t('app.title')}`}</title>
+        <meta name="robots" content="noindex, nofollow" />
       </Head>
       <h1 className="text-2xl font-semibold tracking-tight">{t('errors.pageNotFound')}</h1>
       <Link href="/" className="mt-4 inline-block text-sm underline underline-offset-4">

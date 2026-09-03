@@ -9,8 +9,6 @@ export const DESCRIPTION_MIN_LENGTH = 10
 export const DESCRIPTION_MAX_LENGTH = 2000
 export const BRAND_MAX_LENGTH = 80
 
-// Every message above is an i18n key; these are the values its placeholders take, so
-// the limits stay defined here rather than being retyped in each locale file.
 export const VALIDATION_LIMITS = {
   titleMax: TITLE_MAX_LENGTH,
   descriptionMin: DESCRIPTION_MIN_LENGTH,

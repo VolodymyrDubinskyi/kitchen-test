@@ -4,18 +4,13 @@ import type { ZodType } from 'zod'
 
 import { ApiError } from '@kitchen/utils'
 
+import { originOf } from './origin'
+
 const UNREACHABLE = 502
 const TIMEOUT_MS = 10_000
 
 type ErrorEnvelope = {
   error?: { message?: string }
-}
-
-function originOf(ctx: GetServerSidePropsContext): string {
-  const forwarded = ctx.req.headers['x-forwarded-proto']
-  const protocol = typeof forwarded === 'string' ? forwarded.split(',')[0] : 'http'
-
-  return `${protocol}://${ctx.req.headers.host ?? 'localhost'}`
 }
 
 async function messageOf(response: Response, fallback: string): Promise<string> {
@@ -36,7 +31,7 @@ export async function fetchFromApi<T>(
   let response: Response
 
   try {
-    response = await fetch(`${originOf(ctx)}/api${path}`, {
+    response = await fetch(`${originOf(ctx.req)}/api${path}`, {
       headers: { accept: 'application/json' },
       signal: AbortSignal.timeout(TIMEOUT_MS),
     })

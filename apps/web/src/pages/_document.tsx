@@ -24,6 +24,8 @@ export default class AppDocument extends Document<DocumentProps> {
     return (
       <Html lang={this.props.locale} data-theme={this.props.theme}>
         <Head>
+          <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+          <link rel="icon" href="/favicon.ico" sizes="48x48" />
           <script dangerouslySetInnerHTML={{ __html: APPLY_STORED_THEME }} />
         </Head>
         <body className="antialiased">

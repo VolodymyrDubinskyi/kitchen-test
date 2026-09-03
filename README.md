@@ -49,7 +49,7 @@ apps/web/src/
     api/               fetchers, query keys, React Query hooks
     model/             URL params, delete flow, list route helpers
     ui/                cards, form, gallery, list
-  shared/              theme, toasts, i18n, hooks, UI primitives
+  shared/              theme, toasts, i18n, seo, hooks, UI primitives
 libs/schemas/          zod schemas and domain types, shared by server and client
 libs/utils/            ApiError, price and date formatters
 libs/testing/          payloads captured from the live API, MSW handlers, Vitest setup

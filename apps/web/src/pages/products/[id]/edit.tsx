@@ -23,6 +23,7 @@ const NOT_FOUND = 404
 type Props = SharedPageProps & {
   id: number
   initialProduct: Product | null
+  noindex: true
 }
 
 export const getServerSideProps: GetServerSideProps<Props> = async ctx => {
@@ -38,6 +39,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ctx => {
     return {
       props: {
         ...shared,
+        noindex: true,
         id: parsedId.data,
         initialProduct: await fetchFromApi(ctx, `/products/${parsedId.data}`, productSchema),
       },
@@ -49,7 +51,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async ctx => {
 
     console.error('Server-side product fetch failed', error)
 
-    return { props: { ...shared, id: parsedId.data, initialProduct: null } }
+    return { props: { ...shared, noindex: true, id: parsedId.data, initialProduct: null } }
   }
 }
 

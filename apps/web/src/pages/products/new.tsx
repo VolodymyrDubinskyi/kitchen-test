@@ -10,8 +10,10 @@ import { sharedPageProps, type SharedPageProps } from '../../server/page-props'
 import { useTranslation } from '../../shared/i18n'
 import { Layout } from '../../shared/ui/layout'
 
-export const getServerSideProps: GetServerSideProps<SharedPageProps> = async ctx => ({
-  props: await sharedPageProps(ctx),
+type Props = SharedPageProps & { noindex: true }
+
+export const getServerSideProps: GetServerSideProps<Props> = async ctx => ({
+  props: { ...(await sharedPageProps(ctx)), noindex: true },
 })
 
 export default function NewProductPage() {
