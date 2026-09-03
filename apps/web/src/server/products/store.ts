@@ -3,7 +3,7 @@ import type { Product, ProductInput } from '@kitchen/schemas'
 export type MutationStore = {
   created: Product[]
   updated: Map<number, Product>
-  deleted: Set<number>
+  deleted: Map<number, Product>
   lastId: number
 }
 
@@ -12,7 +12,7 @@ const STORE_KEY = Symbol.for('kitchen.product-mutation-store')
 type StoreHolder = { [STORE_KEY]?: MutationStore }
 
 function emptyStore(): MutationStore {
-  return { created: [], updated: new Map(), deleted: new Set(), lastId: 0 }
+  return { created: [], updated: new Map(), deleted: new Map(), lastId: 0 }
 }
 
 export function mutationStore(): MutationStore {
@@ -77,7 +77,7 @@ export function recordDeleted(product: Product): Product {
     store.created.splice(index, 1)
   } else {
     store.updated.delete(product.id)
-    store.deleted.add(product.id)
+    store.deleted.set(product.id, product)
   }
 
   return product

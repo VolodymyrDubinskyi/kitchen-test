@@ -1,13 +1,13 @@
 import type { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import Head from 'next/head'
 
-import { productListParamsSchema } from '@kitchen/schemas'
+import { productListParamsSchema, productListResponseSchema } from '@kitchen/schemas'
 
 import type { ServerRenderedPage } from '../features/products/api/hooks'
-import { listHref } from '../features/products/model/list-route'
+import { listHref, listQuery } from '../features/products/model/list-route'
 import { ProductList } from '../features/products/ui/product-list'
+import { fetchFromApi } from '../server/api'
 import { sharedPageProps, type SharedPageProps } from '../server/page-props'
-import { listProducts } from '../server/products/service'
 import { useTranslation } from '../shared/i18n'
 import { Layout } from '../shared/ui/layout'
 
@@ -20,7 +20,11 @@ export const getServerSideProps: GetServerSideProps<Props> = async ctx => {
   const shared = await sharedPageProps(ctx)
 
   try {
-    const list = await listProducts(params)
+    const list = await fetchFromApi(
+      ctx,
+      `/products?${new URLSearchParams(listQuery(params))}`,
+      productListResponseSchema,
+    )
 
     if (list.page !== params.page) {
       return {

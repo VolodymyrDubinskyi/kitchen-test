@@ -55,6 +55,22 @@ export default [
     },
   },
   {
+    files: ['**/features/**/*.{ts,tsx}', '**/shared/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/server/**'],
+              message: 'Server-only modules must not be imported from client code.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: ['**/*.{ts,tsx,mts,cts}'],
     rules: {
       '@typescript-eslint/consistent-type-imports': 'error',

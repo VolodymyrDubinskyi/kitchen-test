@@ -50,10 +50,10 @@ describe('ConfirmDialog', () => {
     expect(screen.getByRole('alertdialog')).toHaveAccessibleDescription('It will be removed.')
   })
 
-  it('moves focus to the confirming action when it opens', () => {
+  it('opens with the safe action focused, so a stray Enter cannot delete', () => {
     setup()
 
-    expect(screen.getByRole('button', { name: 'Delete' })).toHaveFocus()
+    expect(screen.getByRole('button', { name: 'Cancel' })).toHaveFocus()
   })
 
   it('cancels on Escape', () => {
@@ -82,7 +82,7 @@ describe('ConfirmDialog', () => {
       />,
     )
 
-    expect(screen.getByRole('button', { name: 'Delete' })).toHaveFocus()
+    expect(screen.getByRole('button', { name: 'Cancel' })).toHaveFocus()
 
     rerender(
       <ConfirmDialog

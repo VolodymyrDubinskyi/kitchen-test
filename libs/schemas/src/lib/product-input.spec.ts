@@ -51,10 +51,8 @@ describe('productInputSchema', () => {
   })
 
   it('measures length after trimming, so whitespace cannot pass for content', () => {
-    expect(messagesFor({ ...validInput, title: '  a  ' })).toContain(
-      'Title must be at least 2 characters',
-    )
-    expect(messagesFor({ ...validInput, category: '   ' })).toContain('Category is required')
+    expect(messagesFor({ ...validInput, title: '  a  ' })).toContain('validation.titleMin')
+    expect(messagesFor({ ...validInput, category: '   ' })).toContain('validation.categoryRequired')
   })
 
   it.each([
@@ -79,12 +77,12 @@ describe('productInputSchema', () => {
     ['zero', 0],
     ['a negative amount', -0.01],
   ])('rejects a price of %s', (_label, price) => {
-    expect(messagesFor({ ...validInput, price })).toContain('Price must be greater than 0')
+    expect(messagesFor({ ...validInput, price })).toContain('validation.pricePositive')
   })
 
   it('rejects a fractional stock count but accepts zero', () => {
-    expect(messagesFor({ ...validInput, stock: 1.5 })).toContain('Stock must be a whole number')
-    expect(messagesFor({ ...validInput, stock: -1 })).toContain('Stock cannot be negative')
+    expect(messagesFor({ ...validInput, stock: 1.5 })).toContain('validation.stockInteger')
+    expect(messagesFor({ ...validInput, stock: -1 })).toContain('validation.stockNonNegative')
     expect(productInputSchema.safeParse({ ...validInput, stock: 0 }).success).toBe(true)
   })
 
@@ -116,16 +114,14 @@ describe('productInputSchema', () => {
     ['an upload path with a forged id', '/api/uploads/../../etc/passwd'],
     ['plain text', 'not a url'],
   ])('rejects %s as a thumbnail', (_label, thumbnail) => {
-    expect(messagesFor({ ...validInput, thumbnail })).toContain(
-      'Thumbnail must be an http or https URL, or an uploaded image',
-    )
+    expect(messagesFor({ ...validInput, thumbnail })).toContain('validation.thumbnailInvalid')
   })
 
   it.each([
     ['an empty number input', undefined],
     ['text typed into a number input', 'abc'],
-  ])('explains %s in words rather than type jargon', (_label, price) => {
-    expect(messagesFor({ ...validInput, price })).toContain('Price must be a number')
+  ])('reports %s as a price problem rather than a type error', (_label, price) => {
+    expect(messagesFor({ ...validInput, price })).toContain('validation.priceNumber')
   })
 
   it('reports every invalid field at once, not just the first', () => {

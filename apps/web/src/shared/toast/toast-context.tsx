@@ -10,6 +10,7 @@ import {
 } from 'react'
 
 const AUTO_DISMISS_MS = 5000
+const MAX_TOASTS = 3
 
 export type ToastTone = 'success' | 'error'
 
@@ -32,11 +33,22 @@ const initialState: ToastState = { toasts: [], nextId: 1 }
 
 export function toastReducer(state: ToastState, action: ToastAction): ToastState {
   switch (action.type) {
-    case 'toast-shown':
-      return {
-        toasts: [...state.toasts, { id: state.nextId, tone: action.tone, message: action.message }],
-        nextId: state.nextId + 1,
+    case 'toast-shown': {
+      const repeated = state.toasts.some(
+        toast => toast.tone === action.tone && toast.message === action.message,
+      )
+
+      if (repeated) {
+        return state
       }
+
+      const shown = [
+        ...state.toasts,
+        { id: state.nextId, tone: action.tone, message: action.message },
+      ]
+
+      return { toasts: shown.slice(-MAX_TOASTS), nextId: state.nextId + 1 }
+    }
     case 'toast-dismissed':
       return { ...state, toasts: state.toasts.filter(toast => toast.id !== action.id) }
   }

@@ -1,4 +1,4 @@
-import type { ChangeEvent } from 'react'
+import { useId, type ChangeEvent } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -7,6 +7,7 @@ import {
   isImageSource,
   productFormSchema,
   toProductFormValues,
+  VALIDATION_LIMITS,
   type ProductFormValues,
   type ProductInput,
 } from '@kitchen/schemas'
@@ -36,6 +37,9 @@ export function ProductForm({
   onUploadImage,
 }: ProductFormProps) {
   const { t } = useTranslation('common')
+  const imageErrorId = useId()
+
+  const fieldError = (message?: string) => (message ? t(message, VALIDATION_LIMITS) : undefined)
 
   const { control, handleSubmit, watch } = useForm<ProductFormValues, unknown, ProductInput>({
     resolver: zodResolver(productFormSchema),
@@ -71,7 +75,11 @@ export function ProductForm({
         control={control}
         name="title"
         render={({ field, fieldState }) => (
-          <TextField label={t('form.title')} error={fieldState.error?.message} {...field} />
+          <TextField
+            label={t('form.title')}
+            error={fieldError(fieldState.error?.message)}
+            {...field}
+          />
         )}
       />
 
@@ -81,7 +89,7 @@ export function ProductForm({
         render={({ field, fieldState }) => (
           <TextAreaField
             label={t('form.description')}
-            error={fieldState.error?.message}
+            error={fieldError(fieldState.error?.message)}
             {...field}
           />
         )}
@@ -92,7 +100,11 @@ export function ProductForm({
           control={control}
           name="category"
           render={({ field, fieldState }) => (
-            <TextField label={t('form.category')} error={fieldState.error?.message} {...field} />
+            <TextField
+              label={t('form.category')}
+              error={fieldError(fieldState.error?.message)}
+              {...field}
+            />
           )}
         />
 
@@ -102,7 +114,7 @@ export function ProductForm({
           render={({ field, fieldState }) => (
             <TextField
               label={t('form.brandOptional')}
-              error={fieldState.error?.message}
+              error={fieldError(fieldState.error?.message)}
               {...field}
               value={field.value ?? ''}
             />
@@ -118,7 +130,7 @@ export function ProductForm({
               type="number"
               step="any"
               min="0"
-              error={fieldState.error?.message}
+              error={fieldError(fieldState.error?.message)}
               {...field}
             />
           )}
@@ -133,7 +145,7 @@ export function ProductForm({
               type="number"
               step="any"
               min="0"
-              error={fieldState.error?.message}
+              error={fieldError(fieldState.error?.message)}
               {...field}
             />
           )}
@@ -153,6 +165,7 @@ export function ProductForm({
                   accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
                   disabled={uploading || !onUploadImage}
                   aria-invalid={fieldState.error ? true : undefined}
+                  aria-describedby={fieldState.error ? imageErrorId : undefined}
                   onChange={event => void pickImage(event, field.onChange)}
                   className="text-sm font-normal file:mr-3 file:rounded-md file:border-0 file:bg-zinc-900 file:px-3 file:py-2 file:text-sm file:text-white dark:file:bg-zinc-100 dark:file:text-zinc-900"
                 />
@@ -170,8 +183,8 @@ export function ProductForm({
             </div>
 
             {fieldState.error ? (
-              <p role="alert" className="text-sm text-red-600 dark:text-red-400">
-                {fieldState.error.message}
+              <p id={imageErrorId} role="alert" className="text-sm text-red-600 dark:text-red-400">
+                {fieldError(fieldState.error.message)}
               </p>
             ) : null}
           </div>

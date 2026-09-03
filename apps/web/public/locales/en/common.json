@@ -9,7 +9,8 @@
   "theme": {
     "label": "Theme",
     "light": "Light",
-    "dark": "Dark"
+    "dark": "Dark",
+    "switchTo": "Switch to {{theme}} theme"
   },
   "language": {
     "label": "Language",
@@ -39,7 +40,9 @@
     "reviewCount_one": "{{count}} review",
     "reviewCount_other": "{{count}} reviews",
     "unrated": "Not rated yet",
-    "imageOf": "Image {{index}} of {{total}}"
+    "imageOf": "Image {{index}} of {{total}}",
+    "editNamed": "Edit {{title}}",
+    "deleteNamed": "Delete {{title}}"
   },
   "pagination": {
     "previous": "Previous",
@@ -62,6 +65,20 @@
     "uploading": "Uploading…",
     "image": "Product image",
     "imagePreview": "Product image preview"
+  },
+  "validation": {
+    "titleMin": "Title must be at least 2 characters",
+    "titleMax": "Title must be at most {{titleMax}} characters",
+    "descriptionMin": "Description must be at least {{descriptionMin}} characters",
+    "descriptionMax": "Description must be at most {{descriptionMax}} characters",
+    "categoryRequired": "Category is required",
+    "priceNumber": "Price must be a number",
+    "pricePositive": "Price must be greater than 0",
+    "stockNumber": "Stock must be a number",
+    "stockInteger": "Stock must be a whole number",
+    "stockNonNegative": "Stock cannot be negative",
+    "brandMax": "Brand must be at most {{brandMax}} characters",
+    "thumbnailInvalid": "Thumbnail must be an http or https URL, or an uploaded image"
   },
   "confirm": {
     "deleteTitle": "Delete this product?",

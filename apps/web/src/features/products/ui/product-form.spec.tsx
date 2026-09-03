@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { toProductFormValues } from '@kitchen/schemas'
 
-import { renderWithI18n } from '../../../tests/render'
+import { renderWithI18n, type TestLocale } from '../../../tests/render'
 import { ProductForm } from './product-form'
 
 const UPLOADED_URL = '/api/uploads/2f1c7d9e-4a3b-4c5d-8e6f-0a1b2c3d4e5f'
@@ -15,7 +15,10 @@ async function attachImage(user: ReturnType<typeof renderWithI18n>['user']) {
   )
 }
 
-function setup(overrides: Partial<Parameters<typeof ProductForm>[0]> = {}) {
+function setup(
+  overrides: Partial<Parameters<typeof ProductForm>[0]> = {},
+  locale: TestLocale = 'en',
+) {
   const onSubmit = vi.fn()
   const onCancel = vi.fn()
 
@@ -27,6 +30,7 @@ function setup(overrides: Partial<Parameters<typeof ProductForm>[0]> = {}) {
       onCancel={onCancel}
       {...overrides}
     />,
+    locale,
   )
 
   return { ...utils, onSubmit, onCancel }
@@ -60,6 +64,20 @@ describe('ProductForm', () => {
       screen.getByText('Thumbnail must be an http or https URL, or an uploaded image'),
     ).toBeInTheDocument()
     expect(onSubmit).not.toHaveBeenCalled()
+  })
+
+  it('speaks the active language, limits included', async () => {
+    const { user } = setup({}, 'uk')
+
+    await user.click(screen.getByRole('button', { name: 'Create product' }))
+
+    await waitFor(() => {
+      expect(screen.getByText('Назва має містити щонайменше 2 символи')).toBeInTheDocument()
+    })
+
+    expect(screen.getByText('Опис має містити щонайменше 10 символів')).toBeInTheDocument()
+    expect(screen.getByText('Вкажіть категорію')).toBeInTheDocument()
+    expect(screen.getByText('Ціна має бути числом')).toBeInTheDocument()
   })
 
   it('marks an invalid control for assistive technology', async () => {

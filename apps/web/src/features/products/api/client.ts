@@ -50,7 +50,15 @@ async function request<T>(
     throw new ApiError(response.status, await readErrorMessage(response))
   }
 
-  const parsed = schema.safeParse(await response.json())
+  let payload: unknown
+
+  try {
+    payload = await response.json()
+  } catch {
+    throw new ApiError(UNEXPECTED, 'The server returned a malformed response')
+  }
+
+  const parsed = schema.safeParse(payload)
 
   if (!parsed.success) {
     throw new ApiError(UNEXPECTED, 'The server returned an unexpected payload')

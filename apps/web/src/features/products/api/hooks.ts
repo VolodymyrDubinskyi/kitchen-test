@@ -47,12 +47,15 @@ export function useProduct(id: number, initialData?: Product) {
 function useMutationFeedback() {
   const { t } = useTranslation('common')
   const toast = useToast()
+  const queryClient = useQueryClient()
 
   return {
     t,
     toast,
-    onError: (error: unknown) =>
-      toast.showError(isApiError(error) ? error.message : t('errors.generic')),
+    onError: (error: unknown) => {
+      toast.showError(isApiError(error) ? error.message : t('errors.generic'))
+      void queryClient.invalidateQueries({ queryKey: productKeys.all })
+    },
   }
 }
 

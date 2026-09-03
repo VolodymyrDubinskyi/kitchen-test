@@ -56,15 +56,15 @@ export function ProductCard({
               max: MAX_RATING,
             })}
           />
-          <span className="text-zinc-500">{product.rating.toFixed(1)}</span>
+          <span className="text-zinc-500 dark:text-zinc-400">{product.rating.toFixed(1)}</span>
         </p>
       ) : (
-        <p className="text-sm text-zinc-500">{t('products.unrated')}</p>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">{t('products.unrated')}</p>
       )}
 
       <div className="flex items-center gap-2 text-sm">
         <span className="font-semibold">{formatPrice(product.price, locale)}</span>
-        <span className="text-zinc-500">
+        <span className="text-zinc-500 dark:text-zinc-400">
           {product.stock > 0
             ? t('products.stockCount', { count: product.stock })
             : t('products.outOfStock')}
@@ -72,7 +72,11 @@ export function ProductCard({
       </div>
 
       <div className="flex gap-2">
-        <LinkButton href={`/products/${product.id}/edit`} variant="secondary">
+        <LinkButton
+          href={`/products/${product.id}/edit`}
+          variant="secondary"
+          aria-label={t('products.editNamed', { title: product.title })}
+        >
           {t('products.edit')}
         </LinkButton>
         <Button variant="danger" type="button" onClick={requestDelete} disabled={deleting}>

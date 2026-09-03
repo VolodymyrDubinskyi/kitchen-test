@@ -7,7 +7,13 @@ export function ThemeToggle() {
   const { t } = useTranslation('common')
 
   return (
-    <Button variant="secondary" onClick={toggleTheme} aria-label={t('theme.label')}>
+    <Button
+      variant="secondary"
+      onClick={toggleTheme}
+      aria-label={t('theme.switchTo', {
+        theme: theme === 'light' ? t('theme.dark') : t('theme.light'),
+      })}
+    >
       {theme === 'light' ? t('theme.dark') : t('theme.light')}
     </Button>
   )

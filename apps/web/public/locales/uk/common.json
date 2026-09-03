@@ -9,7 +9,8 @@
   "theme": {
     "label": "Тема",
     "light": "Світла",
-    "dark": "Темна"
+    "dark": "Темна",
+    "switchTo": "Перемкнути на {{theme}} тему"
   },
   "language": {
     "label": "Мова",
@@ -43,7 +44,9 @@
     "reviewCount_many": "{{count}} відгуків",
     "reviewCount_other": "{{count}} відгуку",
     "unrated": "Ще без оцінки",
-    "imageOf": "Зображення {{index}} з {{total}}"
+    "imageOf": "Зображення {{index}} з {{total}}",
+    "editNamed": "Змінити {{title}}",
+    "deleteNamed": "Видалити {{title}}"
   },
   "pagination": {
     "previous": "Назад",
@@ -66,6 +69,20 @@
     "uploading": "Завантажуємо…",
     "image": "Зображення товару",
     "imagePreview": "Попередній перегляд зображення"
+  },
+  "validation": {
+    "titleMin": "Назва має містити щонайменше 2 символи",
+    "titleMax": "Назва має бути не довшою за {{titleMax}} символів",
+    "descriptionMin": "Опис має містити щонайменше {{descriptionMin}} символів",
+    "descriptionMax": "Опис має бути не довшим за {{descriptionMax}} символів",
+    "categoryRequired": "Вкажіть категорію",
+    "priceNumber": "Ціна має бути числом",
+    "pricePositive": "Ціна має бути більшою за 0",
+    "stockNumber": "Залишок має бути числом",
+    "stockInteger": "Залишок має бути цілим числом",
+    "stockNonNegative": "Залишок не може бути від'ємним",
+    "brandMax": "Бренд має бути не довшим за {{brandMax}} символів",
+    "thumbnailInvalid": "Зображення має бути http або https посиланням чи завантаженим файлом"
   },
   "confirm": {
     "deleteTitle": "Видалити товар?",

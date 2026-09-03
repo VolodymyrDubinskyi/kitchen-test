@@ -28,7 +28,7 @@ export function ConfirmDialog({
   onCancel,
 }: ConfirmDialogProps) {
   const dialogRef = useRef<HTMLDivElement>(null)
-  const confirmRef = useRef<HTMLButtonElement>(null)
+  const cancelButtonRef = useRef<HTMLButtonElement>(null)
   const restoreRef = useRef<HTMLElement | null>(null)
   const cancelRef = useRef(onCancel)
   const titleId = useId()
@@ -68,7 +68,7 @@ export function ConfirmDialog({
 
     restoreRef.current =
       document.activeElement instanceof HTMLElement ? document.activeElement : null
-    confirmRef.current?.focus()
+    cancelButtonRef.current?.focus()
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -84,7 +84,14 @@ export function ConfirmDialog({
 
     return () => {
       document.removeEventListener('keydown', onKeyDown)
-      restoreRef.current?.focus()
+
+      const opener = restoreRef.current
+
+      if (opener?.isConnected) {
+        opener.focus()
+      } else {
+        document.querySelector('main')?.focus()
+      }
     }
   }, [open, trapFocus])
 
@@ -111,16 +118,16 @@ export function ConfirmDialog({
             {body}
           </p>
           <div className="mt-4 flex justify-end gap-2">
-            <Button variant="secondary" type="button" onClick={onCancel} disabled={pending}>
-              {cancelLabel}
-            </Button>
             <Button
-              ref={confirmRef}
-              variant="danger"
+              ref={cancelButtonRef}
+              variant="secondary"
               type="button"
-              onClick={onConfirm}
+              onClick={onCancel}
               disabled={pending}
             >
+              {cancelLabel}
+            </Button>
+            <Button variant="danger" type="button" onClick={onConfirm} disabled={pending}>
               {confirmLabel}
             </Button>
           </div>

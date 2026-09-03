@@ -51,7 +51,7 @@ export function ProductList({
         </div>
       ) : null}
 
-      <p aria-live="polite" className="min-h-5 text-sm text-zinc-500">
+      <p aria-live="polite" className="min-h-5 text-sm text-zinc-500 dark:text-zinc-400">
         {isFetching ? t('products.loading') : null}
         {!isFetching && isEmpty ? emptyMessage : null}
       </p>
@@ -78,7 +78,7 @@ export function ProductList({
         >
           {t('pagination.previous')}
         </Button>
-        <span className="text-zinc-500">
+        <span className="text-zinc-500 dark:text-zinc-400">
           {t('pagination.status', { page: params.page, pageCount })}
         </span>
         <Button

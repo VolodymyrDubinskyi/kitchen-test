@@ -3,13 +3,13 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 
-import { MAX_RATING, productIdSchema, type Product } from '@kitchen/schemas'
+import { MAX_RATING, productIdSchema, productSchema, type Product } from '@kitchen/schemas'
 import { formatDate, formatPrice, isApiError } from '@kitchen/utils'
 
 import { useProduct } from '../../features/products/api/hooks'
 import { ProductGallery } from '../../features/products/ui/product-gallery'
+import { fetchFromApi } from '../../server/api'
 import { sharedPageProps, type SharedPageProps } from '../../server/page-props'
-import { getProduct } from '../../server/products/service'
 import { useTranslation } from '../../shared/i18n'
 import { Layout } from '../../shared/ui/layout'
 import { LinkButton } from '../../shared/ui/link-button'
@@ -33,7 +33,11 @@ export const getServerSideProps: GetServerSideProps<Props> = async ctx => {
 
   try {
     return {
-      props: { ...shared, id: parsedId.data, initialProduct: await getProduct(parsedId.data) },
+      props: {
+        ...shared,
+        id: parsedId.data,
+        initialProduct: await fetchFromApi(ctx, `/products/${parsedId.data}`, productSchema),
+      },
     }
   } catch (error) {
     if (isApiError(error) && error.status === NOT_FOUND) {
@@ -73,11 +77,11 @@ export default function ProductDetailPage({
             <h1 className="text-2xl font-semibold tracking-tight">{product.title}</h1>
             <p className="text-zinc-600 dark:text-zinc-400">{product.description}</p>
             <dl className="grid grid-cols-2 gap-2 text-sm">
-              <dt className="text-zinc-500">{t('products.category')}</dt>
+              <dt className="text-zinc-500 dark:text-zinc-400">{t('products.category')}</dt>
               <dd>{product.category}</dd>
-              <dt className="text-zinc-500">{t('products.brand')}</dt>
+              <dt className="text-zinc-500 dark:text-zinc-400">{t('products.brand')}</dt>
               <dd>{product.brand ?? '—'}</dd>
-              <dt className="text-zinc-500">{t('products.rating')}</dt>
+              <dt className="text-zinc-500 dark:text-zinc-400">{t('products.rating')}</dt>
               <dd className="flex items-center gap-2">
                 {product.rating > 0 ? (
                   <>
@@ -88,13 +92,15 @@ export default function ProductDetailPage({
                         max: MAX_RATING,
                       })}
                     />
-                    <span className="text-zinc-500">{product.rating.toFixed(1)}</span>
+                    <span className="text-zinc-500 dark:text-zinc-400">
+                      {product.rating.toFixed(1)}
+                    </span>
                   </>
                 ) : (
                   t('products.unrated')
                 )}
               </dd>
-              <dt className="text-zinc-500">{t('products.stock')}</dt>
+              <dt className="text-zinc-500 dark:text-zinc-400">{t('products.stock')}</dt>
               <dd>{product.stock}</dd>
             </dl>
             <p className="text-xl font-semibold">{formatPrice(product.price, locale)}</p>
@@ -107,13 +113,15 @@ export default function ProductDetailPage({
         <section className="mt-10">
           <h2 className="text-lg font-semibold tracking-tight">
             {t('products.reviews')}{' '}
-            <span className="font-normal text-zinc-500">
+            <span className="font-normal text-zinc-500 dark:text-zinc-400">
               ({t('products.reviewCount', { count: product.reviews.length })})
             </span>
           </h2>
 
           {product.reviews.length === 0 ? (
-            <p className="mt-4 text-sm text-zinc-500">{t('products.noReviews')}</p>
+            <p className="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
+              {t('products.noReviews')}
+            </p>
           ) : null}
           <ul className="mt-4 flex flex-col gap-4">
             {product.reviews.map(review => (
@@ -127,7 +135,7 @@ export default function ProductDetailPage({
                     label={t('products.ratingLabel', { value: review.rating, max: MAX_RATING })}
                   />
                   <span className="font-medium">{review.reviewerName}</span>
-                  <time dateTime={review.date} className="text-zinc-500">
+                  <time dateTime={review.date} className="text-zinc-500 dark:text-zinc-400">
                     {formatDate(review.date, locale)}
                   </time>
                 </div>

@@ -34,7 +34,7 @@ export function useProductListParams(): ProductListParamsApi {
   }
 
   useEffect(() => {
-    if (debouncedSearch === urlSearch) {
+    if (debouncedSearch === urlSearch || debouncedSearch !== searchInput.trim()) {
       return
     }
 
@@ -46,7 +46,7 @@ export function useProductListParams(): ProductListParamsApi {
       undefined,
       { shallow: true, scroll: false },
     )
-  }, [debouncedSearch, urlSearch, router])
+  }, [debouncedSearch, searchInput, urlSearch, router])
 
   const goToPage = useCallback(
     (page: number) => {

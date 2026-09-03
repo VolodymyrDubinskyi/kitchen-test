@@ -4,6 +4,7 @@ import { useRouter } from 'next/router'
 
 import {
   productIdSchema,
+  productSchema,
   toProductFormValues,
   type Product,
   type ProductInput,
@@ -12,8 +13,8 @@ import { isApiError } from '@kitchen/utils'
 
 import { useProduct, useUpdateProduct, useUploadImage } from '../../../features/products/api/hooks'
 import { ProductForm } from '../../../features/products/ui/product-form'
+import { fetchFromApi } from '../../../server/api'
 import { sharedPageProps, type SharedPageProps } from '../../../server/page-props'
-import { getProduct } from '../../../server/products/service'
 import { useTranslation } from '../../../shared/i18n'
 import { Layout } from '../../../shared/ui/layout'
 
@@ -35,7 +36,11 @@ export const getServerSideProps: GetServerSideProps<Props> = async ctx => {
 
   try {
     return {
-      props: { ...shared, id: parsedId.data, initialProduct: await getProduct(parsedId.data) },
+      props: {
+        ...shared,
+        id: parsedId.data,
+        initialProduct: await fetchFromApi(ctx, `/products/${parsedId.data}`, productSchema),
+      },
     }
   } catch (error) {
     if (isApiError(error) && error.status === NOT_FOUND) {

@@ -8,7 +8,6 @@ import {
 import { ApiError } from '@kitchen/utils'
 
 import * as upstream from '../dummyjson/products'
-import { loadCatalog } from './catalog'
 import {
   isLocallyCreated,
   mutationStore,
@@ -33,47 +32,50 @@ function matches(product: Product, search: string | undefined): boolean {
   )
 }
 
-async function visibleProducts(): Promise<Product[]> {
-  const store = mutationStore()
-  const catalog = await loadCatalog()
+export async function listProducts(params: ProductListParams): Promise<ProductListResponse> {
+  let upstreamPage = await upstream.fetchProductPage(params)
 
-  const surviving = catalog
+  const pageCount = Math.max(1, Math.ceil(upstreamPage.total / PRODUCTS_PAGE_SIZE))
+  const page = Math.min(params.page, pageCount)
+
+  if (page !== params.page) {
+    upstreamPage = await upstream.fetchProductPage({ ...params, page })
+  }
+
+  const store = mutationStore()
+  const created = store.created.filter(product => matches(product, params.search))
+  const dropped = [...store.deleted.values()].filter(product => matches(product, params.search))
+
+  const surviving = upstreamPage.products
     .filter(product => !store.deleted.has(product.id))
     .map(product => store.updated.get(product.id) ?? product)
 
-  return [...store.created, ...surviving]
-}
-
-export async function listProducts(params: ProductListParams): Promise<ProductListResponse> {
-  const matching = (await visibleProducts()).filter(product => matches(product, params.search))
-  const pageCount = Math.max(1, Math.ceil(matching.length / PRODUCTS_PAGE_SIZE))
-  const page = Math.min(params.page, pageCount)
-  const skip = (page - 1) * PRODUCTS_PAGE_SIZE
-
   return {
-    products: matching.slice(skip, skip + PRODUCTS_PAGE_SIZE),
-    total: matching.length,
+    products: page === 1 ? [...created, ...surviving] : surviving,
+    total: Math.max(0, upstreamPage.total + created.length - dropped.length),
     page,
     pageCount,
   }
 }
 
 export async function getProduct(id: number): Promise<Product> {
-  const product = (await visibleProducts()).find(candidate => candidate.id === id)
+  const store = mutationStore()
 
-  if (!product) {
+  if (store.deleted.has(id)) {
     throw new ApiError(NOT_FOUND, `Product ${id} was not found`)
   }
 
-  return product
+  return (
+    store.created.find(product => product.id === id) ??
+    store.updated.get(id) ??
+    upstream.fetchProduct(id)
+  )
 }
 
 export async function createProduct(input: ProductInput): Promise<Product> {
   const echoed = await upstream.createProduct(input)
-  const catalog = await loadCatalog()
-  const highestUpstreamId = catalog.reduce((highest, product) => Math.max(highest, product.id), 0)
 
-  return recordCreated(input, Math.max(highestUpstreamId, echoed.id))
+  return recordCreated(input, echoed.id)
 }
 
 export async function updateProduct(id: number, input: ProductInput): Promise<Product> {

@@ -12,29 +12,26 @@ import {
 import { requestUpstream } from './request'
 
 function listPath({ page, search }: ProductListParams): string {
-  const params = new URLSearchParams({
+  const query = new URLSearchParams({
     limit: String(PRODUCTS_PAGE_SIZE),
     skip: String((page - 1) * PRODUCTS_PAGE_SIZE),
   })
 
-  if (search) {
-    params.set('q', search)
-
-    return `/products/search?${params.toString()}`
+  if (!search) {
+    return `/products?${query}`
   }
 
-  return `/products?${params.toString()}`
+  query.set('q', search)
+
+  return `/products/search?${query}`
 }
 
-export function fetchProductPage(
-  params: ProductListParams,
-  init?: RequestInit,
-): Promise<ProductPage> {
-  return requestUpstream(listPath(params), productPageSchema, init)
+export function fetchProductPage(params: ProductListParams): Promise<ProductPage> {
+  return requestUpstream(listPath(params), productPageSchema)
 }
 
-export function fetchProduct(id: number, init?: RequestInit): Promise<Product> {
-  return requestUpstream(`/products/${id}`, productSchema, init)
+export function fetchProduct(id: number): Promise<Product> {
+  return requestUpstream(`/products/${id}`, productSchema)
 }
 
 export function createProduct(input: ProductInput) {

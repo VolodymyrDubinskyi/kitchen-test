@@ -148,6 +148,23 @@ describe('useProductListParams', () => {
     expect(result.current.searchInput).toBe('  mascara  ')
   })
 
+  it('does not push the old search back into the URL after the user navigates away', () => {
+    router.query = { search: 'mascara' }
+
+    const { result, rerender } = renderHook(() => useProductListParams())
+
+    expect(result.current.searchInput).toBe('mascara')
+
+    router.query = {}
+    rerender()
+    settleDebounce()
+    rerender()
+
+    expect(router.replace).not.toHaveBeenCalled()
+    expect(router.query).toEqual({})
+    expect(result.current.searchInput).toBe('')
+  })
+
   it('adds a history entry when paging, so back returns to the previous page', () => {
     router.query = { search: 'lipstick' }
 

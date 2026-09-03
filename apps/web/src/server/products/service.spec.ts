@@ -5,7 +5,6 @@ import type { Product, ProductInput } from '@kitchen/schemas'
 import { product as capturedProduct, server, UPSTREAM_BASE_URL } from '@kitchen/testing'
 import { ApiError } from '@kitchen/utils'
 
-import { clearCatalogCache } from './catalog'
 import { createProduct, deleteProduct, getProduct, listProducts, updateProduct } from './service'
 import { resetMutationStore } from './store'
 
@@ -21,6 +20,8 @@ const input: ProductInput = {
   thumbnail: 'https://cdn.dummyjson.com/service.webp',
 }
 
+// Stands in for dummyJSON: honours limit/skip and q so the tests exercise the
+// real division of labour, where upstream pages and searches, not the service.
 function serveCatalog(count: number) {
   const products = Array.from({ length: count }, (_item, index) => ({
     ...template,
@@ -28,32 +29,60 @@ function serveCatalog(count: number) {
     title: `Upstream product ${index + 1}`,
   }))
 
+  const servePage = ({ request }: { request: Request }) => {
+    const query = new URL(request.url).searchParams
+    const needle = query.get('q')?.toLowerCase()
+    const skip = Number(query.get('skip') ?? 0)
+    const limit = Number(query.get('limit') ?? products.length)
+    const matching = needle
+      ? products.filter(product => product.title.toLowerCase().includes(needle))
+      : products
+    const window = matching.slice(skip, skip + limit)
+
+    return HttpResponse.json({
+      products: window,
+      total: matching.length,
+      skip,
+      limit: window.length,
+    })
+  }
+
   server.use(
-    http.get(`${UPSTREAM_BASE_URL}/products`, () =>
-      HttpResponse.json({ products, total: products.length, skip: 0, limit: products.length }),
-    ),
+    http.get(`${UPSTREAM_BASE_URL}/products`, servePage),
+    http.get(`${UPSTREAM_BASE_URL}/products/search`, servePage),
+    http.get(`${UPSTREAM_BASE_URL}/products/:id`, ({ params }) => {
+      const found = products.find(product => product.id === Number(params.id))
+
+      return found
+        ? HttpResponse.json(found)
+        : HttpResponse.json(
+            { message: `Product with id '${params.id}' not found` },
+            { status: 404 },
+          )
+    }),
   )
 }
 
 beforeEach(() => {
   resetMutationStore()
-  clearCatalogCache()
   serveCatalog(30)
 })
 
 afterEach(() => {
   resetMutationStore()
-  clearCatalogCache()
 })
 
 describe('listProducts', () => {
-  it('paginates the upstream catalogue', async () => {
+  it('lets upstream do the paging instead of slicing a full catalogue', async () => {
     const first = await listProducts({ page: 1 })
     const second = await listProducts({ page: 2 })
 
-    expect(first.products).toHaveLength(12)
-    expect(first.total).toBe(30)
-    expect(first.products[0]?.id).not.toBe(second.products[0]?.id)
+    expect(first.products.map(product => product.id)).toEqual([
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
+    ])
+    expect(second.products.map(product => product.id)).toEqual([
+      13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+    ])
   })
 
   it('reports which page it actually served and how many there are', async () => {
@@ -71,11 +100,12 @@ describe('listProducts', () => {
     expect(result.products).toHaveLength(6)
   })
 
-  it('counts pages against the filtered set, not the whole catalogue', async () => {
+  it('lets upstream do the searching too', async () => {
     const result = await listProducts({ page: 1, search: 'product 7' })
 
-    expect(result.pageCount).toBe(1)
+    expect(result.products.map(product => product.title)).toEqual(['Upstream product 7'])
     expect(result.total).toBe(1)
+    expect(result.pageCount).toBe(1)
   })
 
   it('never reports fewer than one page, even with no matches', async () => {
@@ -84,13 +114,6 @@ describe('listProducts', () => {
     expect(result.pageCount).toBe(1)
     expect(result.page).toBe(1)
     expect(result.products).toHaveLength(0)
-  })
-
-  it('searches across title, description and category', async () => {
-    const result = await listProducts({ page: 1, search: 'product 7' })
-
-    expect(result.products.map(product => product.title)).toEqual(['Upstream product 7'])
-    expect(result.total).toBe(1)
   })
 })
 
@@ -111,7 +134,7 @@ describe('createProduct', () => {
     expect(sent).toBe(true)
   })
 
-  it('makes the product visible in the list and countable in the total', async () => {
+  it('shows the product on the first page and counts it in the total', async () => {
     const created = await createProduct(input)
     const page = await listProducts({ page: 1 })
 
@@ -119,10 +142,20 @@ describe('createProduct', () => {
     expect(page.total).toBe(31)
   })
 
+  it('leaves later pages alone rather than shifting the whole catalogue', async () => {
+    await createProduct(input)
+
+    const second = await listProducts({ page: 2 })
+
+    expect(second.products.map(product => product.id)).toEqual([
+      13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+    ])
+  })
+
   it('never reuses an upstream id, nor the id upstream echoes back', async () => {
     const created = await createProduct(input)
 
-    expect(created.id).toBeGreaterThan(30)
+    expect(created.id).toBeGreaterThan(195)
   })
 
   it('hands out a fresh id after a delete', async () => {
@@ -133,21 +166,13 @@ describe('createProduct', () => {
     expect(second.id).not.toBe(first.id)
   })
 
-  it('keeps the page size honest', async () => {
-    await createProduct(input)
-
-    const page = await listProducts({ page: 1 })
-
-    expect(page.products).toHaveLength(12)
-    expect(page.total).toBe(31)
-  })
-
   it('surfaces the created product to a matching search', async () => {
     await createProduct(input)
 
     const page = await listProducts({ page: 1, search: 'Service Test' })
 
     expect(page.products.map(product => product.title)).toEqual(['Service Test Product'])
+    expect(page.total).toBe(1)
   })
 })
 
@@ -182,6 +207,15 @@ describe('deleteProduct', () => {
 
     expect(page.products.map(product => product.id)).not.toContain(1)
     expect(page.total).toBe(29)
+  })
+
+  it('thins the page it was on instead of pulling an item back from the next one', async () => {
+    await deleteProduct(1)
+
+    const first = await listProducts({ page: 1 })
+
+    expect(first.products).toHaveLength(11)
+    expect(first.pageCount).toBe(3)
   })
 
   it('makes the product a 404 afterwards', async () => {

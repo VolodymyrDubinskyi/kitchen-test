@@ -25,7 +25,9 @@ export function Layout({ children }: { children: ReactNode }) {
           <ThemeToggle />
         </div>
       </header>
-      <main className="mx-auto max-w-5xl px-4 py-8">{children}</main>
+      <main tabIndex={-1} className="mx-auto max-w-5xl px-4 py-8 focus:outline-none">
+        {children}
+      </main>
     </div>
   )
 }

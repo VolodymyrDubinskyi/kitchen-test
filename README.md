@@ -6,6 +6,58 @@ English/Ukrainian localisation.
 
 Next.js (Pages Router) in an Nx monorepo, Yarn 4 workspaces, TypeScript strict.
 
+## Requirements
+
+- Node `v22` (see `.nvmrc`)
+- Yarn 4 via Corepack — `corepack enable`
+
+## Setup
+
+```bash
+yarn install
+cp .env.example .env
+yarn dev
+```
+
+The app runs on http://localhost:3000. Ukrainian is at `/uk`.
+
+## Commands
+
+| Command             | What it does                |
+| ------------------- | --------------------------- |
+| `yarn dev`          | Next dev server             |
+| `yarn build`        | Build every project         |
+| `yarn start`        | Serve the production build  |
+| `yarn test`         | Vitest across the workspace |
+| `yarn lint`         | ESLint across the workspace |
+| `yarn typecheck`    | `tsc` across the workspace  |
+| `yarn format`       | Prettier write              |
+| `yarn format:check` | Prettier check              |
+
+## Structure
+
+```
+apps/web/src/
+  pages/               routes and API routes
+  server/
+    api.ts             server-side fetcher, getServerSideProps into our own /api
+    dummyjson/         the only place that knows dummyJSON's URLs
+    products/          mutation store, service
+    uploads/           in-memory image store
+    http/              error envelope and method routing
+  features/products/
+    api/               fetchers, query keys, React Query hooks
+    model/             URL params, delete flow, list route helpers
+    ui/                cards, form, gallery, list
+  shared/              theme, toasts, i18n, hooks, UI primitives
+libs/schemas/          zod schemas and domain types, shared by server and client
+libs/utils/            ApiError, price and date formatters
+libs/testing/          payloads captured from the live API, MSW handlers, Vitest setup
+```
+
+Layering is enforced at lint time by `@nx/enforce-module-boundaries` project tags, and
+`no-restricted-imports` keeps `@kitchen/testing` out of production code.
+
 ## Decisions, features, tradeoffs
 
 Up front: I don't agree with every decision below. On a real project a few of these would have gone
@@ -63,23 +115,29 @@ product list, a single product, and the mutations. Context with `useReducer` hol
 never sends — theme, language and notifications. Theme and language are mirrored into cookies, so the
 server already knows them on the first response and there's no flash of the wrong one.
 
-### 5. The browser never calls dummyJSON directly
+### 5. Every request takes the same route to dummyJSON
 
-Everything goes to this app's own `/api` routes, which then talk to dummyJSON. Two reasons.
+```
+browser / getServerSideProps -> /api/products -> service.ts -> dummyjson/products.ts -> dummyJSON
+```
 
-**Security.** Credentials for the upstream never reach the browser. The upstream's address and
-response shape stay behind our own contract, so it can be swapped without touching the client. Every
-payload is validated in one place before the client sees it, so a change upstream can't reach the UI
-unnoticed. And rate limiting or auth would have exactly one place to live.
+`getServerSideProps` goes through `/api` like any other client rather than importing the service, so
+there is one entry point and SSR and CSR can't drift apart. Two reasons for the chain itself.
 
-**Gaps in dummyJSON.** Create, edit and delete return a convincing response but change nothing —
-the next `GET` is identical and `total` stays at 194. Left alone the app looks broken, so a small
-in-memory layer in `src/server/products` remembers the mutations and merges them into the list before
-paginating. Image upload works the same way: no storage in scope, so files are kept in memory and
-served from `/api/uploads/:id`, size-capped and type-checked.
+**Security.** Credentials for the upstream never reach the browser, its address and response shape
+stay behind our own contract, and every payload is validated in one place before the client sees it.
+Rate limiting or auth would have exactly one place to live.
 
-(Both live in the server process, so they reset on restart and wouldn't be shared across instances —
-fine for a stand-in, and none of it would exist on a real backend.)
+**Gaps in dummyJSON.** Create, edit and delete return a convincing response but change nothing — the
+next `GET` is identical and `total` stays at 194. So a small in-memory layer in `src/server/products`
+remembers the mutations and overlays them onto the page the upstream returned: created products go to
+the front of page 1, edited ones are substituted in place, deleted ones drop out. Paging and
+searching stay upstream, so a page that lost an item to a delete is served with 11 rows instead of 12
+rather than renumbering everything behind it. Image upload is the same story: no storage in scope, so
+files live in memory and are served from `/api/uploads/:id`, size-capped and type-checked.
+
+(Both reset on restart and wouldn't be shared across instances — fine for a stand-in, and neither
+would exist on a real backend.)
 
 ### 6. Zod on both sides, React Hook Form for forms
 
@@ -99,11 +157,11 @@ Two details worth naming:
 
 ### 7. Where SSR ends and CSR begins
 
-`getServerSideProps` reads `page` and `search` from the URL and renders the first list, so the first
-response is complete HTML. After hydration the URL is still the source of truth but the client takes
-over: pagination and search rewrite the query string with shallow routing, the React Query key
-changes with it, and the fetch happens in the browser. Pagination uses `push` so Back walks through
-pages; the debounced search uses `replace` so typing doesn't fill the history.
+`getServerSideProps` reads `page` and `search` from the URL, fetches that list through `/api` and
+renders it, so the first response is complete HTML. After hydration the URL is still the source of
+truth but the client takes over: pagination and search rewrite the query string with shallow routing,
+the React Query key changes with it, and the fetch happens in the browser. Pagination uses `push` so
+Back walks through pages; the debounced search uses `replace` so typing doesn't fill the history.
 
 Handing the server's payload to the cache has two traps, and I fell into both before getting it
 right:
@@ -132,54 +190,3 @@ Nothing surprising, but for completeness:
   mismatch with reality stays invisible. That's exactly how I missed that dummyJSON's create response
   has no `rating` field.
 - **TypeScript strict**, ESLint and Prettier throughout, with the layering rules described above.
-
-## Requirements
-
-- Node `v22` (see `.nvmrc`)
-- Yarn 4 via Corepack — `corepack enable`
-
-## Setup
-
-```bash
-yarn install
-cp .env.example .env
-yarn dev
-```
-
-The app runs on http://localhost:3000. Ukrainian is at `/uk`.
-
-## Commands
-
-| Command             | What it does                |
-| ------------------- | --------------------------- |
-| `yarn dev`          | Next dev server             |
-| `yarn build`        | Build every project         |
-| `yarn start`        | Serve the production build  |
-| `yarn test`         | Vitest across the workspace |
-| `yarn lint`         | ESLint across the workspace |
-| `yarn typecheck`    | `tsc` across the workspace  |
-| `yarn format`       | Prettier write              |
-| `yarn format:check` | Prettier check              |
-
-## Structure
-
-```
-apps/web/src/
-  pages/               routes and API routes
-  server/
-    dummyjson/         upstream adapter
-    products/          catalogue cache, mutation store, service
-    uploads/           in-memory image store
-    http/              error envelope and method routing
-  features/products/
-    api/               fetchers, query keys, React Query hooks
-    model/             URL params, delete flow, list route helpers
-    ui/                cards, form, gallery, list
-  shared/              theme, toasts, i18n, hooks, UI primitives
-libs/schemas/          zod schemas and domain types, shared by server and client
-libs/utils/            ApiError, price and date formatters
-libs/testing/          payloads captured from the live API, MSW handlers, Vitest setup
-```
-
-Layering is enforced at lint time by `@nx/enforce-module-boundaries` project tags, and
-`no-restricted-imports` keeps `@kitchen/testing` out of production code.
