@@ -1,12 +1,13 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 
-import type { Product } from '@kitchen/schemas'
+import { MAX_RATING, type Product } from '@kitchen/schemas'
 import { formatPrice } from '@kitchen/utils'
 
 import { useTranslation } from '../../../shared/i18n'
 import { Button } from '../../../shared/ui/button'
 import { LinkButton } from '../../../shared/ui/link-button'
+import { RatingStars } from '../../../shared/ui/rating-stars'
 import { ProductImage } from './product-image'
 
 export function ProductCard({
@@ -31,7 +32,7 @@ export function ProductCard({
           alt={product.title}
           width={72}
           height={72}
-          className="h-18 w-18 rounded-md object-cover"
+          className="h-18 w-18 shrink-0 rounded-md bg-zinc-100 object-cover dark:bg-zinc-800"
         />
         <div className="min-w-0 flex-1">
           <Link
@@ -45,6 +46,21 @@ export function ProductCard({
           </p>
         </div>
       </div>
+
+      {product.rating > 0 ? (
+        <p className="flex items-center gap-2 text-sm">
+          <RatingStars
+            value={product.rating}
+            label={t('products.ratingLabel', {
+              value: product.rating.toFixed(1),
+              max: MAX_RATING,
+            })}
+          />
+          <span className="text-zinc-500">{product.rating.toFixed(1)}</span>
+        </p>
+      ) : (
+        <p className="text-sm text-zinc-500">{t('products.unrated')}</p>
+      )}
 
       <div className="flex items-center gap-2 text-sm">
         <span className="font-semibold">{formatPrice(product.price, locale)}</span>

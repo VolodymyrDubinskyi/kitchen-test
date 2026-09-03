@@ -32,7 +32,14 @@
     "delete": "Delete",
     "back": "Back to products",
     "detailTitle": "Product details",
-    "emptyPage": "This page is empty."
+    "emptyPage": "This page is empty.",
+    "reviews": "Reviews",
+    "noReviews": "No reviews yet",
+    "ratingLabel": "Rated {{value}} out of {{max}}",
+    "reviewCount_one": "{{count}} review",
+    "reviewCount_other": "{{count}} reviews",
+    "unrated": "Not rated yet",
+    "imageOf": "Image {{index}} of {{total}}"
   },
   "pagination": {
     "previous": "Previous",

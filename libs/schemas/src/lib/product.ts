@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+import { reviewSchema } from './review'
 import { httpUrlSchema, imageSourceSchema } from './url'
 
 export const productSchema = z.object({
@@ -13,6 +14,7 @@ export const productSchema = z.object({
   brand: z.string().optional(),
   thumbnail: imageSourceSchema('Thumbnail must be an http or https URL, or an uploaded image'),
   images: z.array(httpUrlSchema).default([]),
+  reviews: z.array(reviewSchema).default([]),
 })
 
 export const productPageSchema = z.object({

@@ -46,6 +46,7 @@ export function recordCreated(input: ProductInput, floorId: number): Product {
     thumbnail: input.thumbnail,
     rating: 0,
     images: [],
+    reviews: [],
   }
 
   store.created.unshift(product)

@@ -3,16 +3,17 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 
-import { productIdSchema, type Product } from '@kitchen/schemas'
-import { formatPrice, isApiError } from '@kitchen/utils'
+import { MAX_RATING, productIdSchema, type Product } from '@kitchen/schemas'
+import { formatDate, formatPrice, isApiError } from '@kitchen/utils'
 
 import { useProduct } from '../../features/products/api/hooks'
-import { ProductImage } from '../../features/products/ui/product-image'
+import { ProductGallery } from '../../features/products/ui/product-gallery'
 import { sharedPageProps, type SharedPageProps } from '../../server/page-props'
 import { getProduct } from '../../server/products/service'
 import { useTranslation } from '../../shared/i18n'
 import { Layout } from '../../shared/ui/layout'
 import { LinkButton } from '../../shared/ui/link-button'
+import { RatingStars } from '../../shared/ui/rating-stars'
 
 const NOT_FOUND = 404
 
@@ -67,13 +68,7 @@ export default function ProductDetailPage({
         <p className="mt-6 text-sm text-red-600 dark:text-red-400">{t('errors.loadProduct')}</p>
       ) : (
         <article className="mt-6 flex flex-col gap-6 sm:flex-row">
-          <ProductImage
-            src={product.thumbnail}
-            alt={product.title}
-            width={280}
-            height={280}
-            className="w-full max-w-xs rounded-lg object-cover"
-          />
+          <ProductGallery key={product.id} product={product} />
           <div className="flex flex-1 flex-col gap-3">
             <h1 className="text-2xl font-semibold tracking-tight">{product.title}</h1>
             <p className="text-zinc-600 dark:text-zinc-400">{product.description}</p>
@@ -83,7 +78,22 @@ export default function ProductDetailPage({
               <dt className="text-zinc-500">{t('products.brand')}</dt>
               <dd>{product.brand ?? '—'}</dd>
               <dt className="text-zinc-500">{t('products.rating')}</dt>
-              <dd>{product.rating}</dd>
+              <dd className="flex items-center gap-2">
+                {product.rating > 0 ? (
+                  <>
+                    <RatingStars
+                      value={product.rating}
+                      label={t('products.ratingLabel', {
+                        value: product.rating.toFixed(1),
+                        max: MAX_RATING,
+                      })}
+                    />
+                    <span className="text-zinc-500">{product.rating.toFixed(1)}</span>
+                  </>
+                ) : (
+                  t('products.unrated')
+                )}
+              </dd>
               <dt className="text-zinc-500">{t('products.stock')}</dt>
               <dd>{product.stock}</dd>
             </dl>
@@ -92,6 +102,41 @@ export default function ProductDetailPage({
           </div>
         </article>
       )}
+
+      {product ? (
+        <section className="mt-10">
+          <h2 className="text-lg font-semibold tracking-tight">
+            {t('products.reviews')}{' '}
+            <span className="font-normal text-zinc-500">
+              ({t('products.reviewCount', { count: product.reviews.length })})
+            </span>
+          </h2>
+
+          {product.reviews.length === 0 ? (
+            <p className="mt-4 text-sm text-zinc-500">{t('products.noReviews')}</p>
+          ) : null}
+          <ul className="mt-4 flex flex-col gap-4">
+            {product.reviews.map(review => (
+              <li
+                key={`${review.reviewerName}-${review.date}`}
+                className="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800"
+              >
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                  <RatingStars
+                    value={review.rating}
+                    label={t('products.ratingLabel', { value: review.rating, max: MAX_RATING })}
+                  />
+                  <span className="font-medium">{review.reviewerName}</span>
+                  <time dateTime={review.date} className="text-zinc-500">
+                    {formatDate(review.date, locale)}
+                  </time>
+                </div>
+                <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">{review.comment}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
     </Layout>
   )
 }

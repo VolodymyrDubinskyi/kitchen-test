@@ -22,12 +22,16 @@ export function ProductImage({
   width,
   height,
   className,
+  priority = false,
+  sizes,
 }: {
   src: string
   alt: string
   width: number
   height: number
   className?: string
+  priority?: boolean
+  sizes?: string
 }) {
   if (!isImageSource(src)) {
     return (
@@ -46,6 +50,8 @@ export function ProductImage({
       width={width}
       height={height}
       unoptimized={!isOptimizable(src)}
+      priority={priority}
+      sizes={sizes}
       className={className}
     />
   )

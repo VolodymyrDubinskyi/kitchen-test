@@ -30,12 +30,13 @@ describe('productSchema', () => {
       'images',
       'price',
       'rating',
+      'reviews',
       'stock',
       'thumbnail',
       'title',
     ])
     expect(result).not.toHaveProperty('tags')
-    expect(result).not.toHaveProperty('reviews')
+    expect(result).not.toHaveProperty('sku')
   })
 
   it('defaults images to an empty array when upstream omits it', () => {
@@ -80,6 +81,45 @@ describe('productSchema', () => {
     ['an empty title', { title: '' }],
   ])('rejects %s', (_label, override) => {
     expect(productSchema.safeParse({ ...product, ...override }).success).toBe(false)
+  })
+})
+
+describe('product reviews', () => {
+  it('keeps the reviews the API sends', () => {
+    const result = productSchema.parse(product)
+
+    expect(result.reviews).toHaveLength(3)
+    expect(result.reviews[0]).toEqual({
+      rating: expect.any(Number),
+      comment: expect.any(String),
+      date: expect.any(String),
+      reviewerName: expect.any(String),
+    })
+  })
+
+  it('drops the reviewer email, which the page has no business showing', () => {
+    const result = productSchema.parse(product)
+
+    expect(result.reviews[0]).not.toHaveProperty('reviewerEmail')
+  })
+
+  it('defaults to no reviews when the payload omits them, as write responses do', () => {
+    const { reviews, ...withoutReviews } = product
+
+    expect(reviews).toBeDefined()
+    expect(productSchema.parse(withoutReviews).reviews).toEqual([])
+  })
+
+  it('rejects a review rated outside the scale', () => {
+    const broken = { ...product, reviews: [{ ...product.reviews[0], rating: 9 }] }
+
+    expect(productSchema.safeParse(broken).success).toBe(false)
+  })
+
+  it('rejects a review with a date that is not a timestamp', () => {
+    const broken = { ...product, reviews: [{ ...product.reviews[0], date: 'yesterday' }] }
+
+    expect(productSchema.safeParse(broken).success).toBe(false)
   })
 })
 

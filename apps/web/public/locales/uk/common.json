@@ -34,7 +34,16 @@
     "delete": "Видалити",
     "back": "До списку товарів",
     "detailTitle": "Картка товару",
-    "emptyPage": "Ця сторінка порожня."
+    "emptyPage": "Ця сторінка порожня.",
+    "reviews": "Відгуки",
+    "noReviews": "Відгуків поки немає",
+    "ratingLabel": "Оцінка {{value}} з {{max}}",
+    "reviewCount_one": "{{count}} відгук",
+    "reviewCount_few": "{{count}} відгуки",
+    "reviewCount_many": "{{count}} відгуків",
+    "reviewCount_other": "{{count}} відгуку",
+    "unrated": "Ще без оцінки",
+    "imageOf": "Зображення {{index}} з {{total}}"
   },
   "pagination": {
     "previous": "Назад",
