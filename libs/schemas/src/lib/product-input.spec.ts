@@ -3,8 +3,10 @@ import { describe, expect, it } from 'vitest'
 import {
   BRAND_MAX_LENGTH,
   DESCRIPTION_MIN_LENGTH,
+  productFormSchema,
   productInputSchema,
   TITLE_MAX_LENGTH,
+  toProductFormValues,
 } from './product-input'
 
 const validInput = {
@@ -136,5 +138,55 @@ describe('productInputSchema', () => {
     })
 
     expect(messages.length).toBeGreaterThanOrEqual(5)
+  })
+})
+
+describe('toProductFormValues', () => {
+  const product = {
+    id: 3,
+    title: 'Powder Canister',
+    description: 'A finely milled setting powder.',
+    category: 'beauty',
+    price: 14.99,
+    stock: 89,
+    brand: 'Velvet Touch',
+    thumbnail: 'https://cdn.dummyjson.com/powder.webp',
+    rating: 4.64,
+    images: ['https://cdn.dummyjson.com/powder-1.webp'],
+  }
+
+  it('renders numbers as the strings the inputs will hold', () => {
+    const values = toProductFormValues(product)
+
+    expect(values.price).toBe('14.99')
+    expect(values.stock).toBe('89')
+  })
+
+  it('round-trips back to the same numbers through the form schema', () => {
+    const parsed = productFormSchema.parse(toProductFormValues(product))
+
+    expect(parsed.price).toBe(product.price)
+    expect(parsed.stock).toBe(product.stock)
+    expect(parsed.title).toBe(product.title)
+  })
+
+  it('drops the fields the form has no business carrying', () => {
+    const values = toProductFormValues(product)
+
+    expect(values).not.toHaveProperty('id')
+    expect(values).not.toHaveProperty('rating')
+    expect(values).not.toHaveProperty('images')
+  })
+
+  it('produces an empty form when given nothing', () => {
+    expect(toProductFormValues()).toEqual({
+      title: '',
+      description: '',
+      category: '',
+      price: '',
+      stock: '',
+      brand: '',
+      thumbnail: '',
+    })
   })
 })

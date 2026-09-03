@@ -1,7 +1,5 @@
 import {
   useId,
-  useState,
-  type ChangeEvent,
   type InputHTMLAttributes,
   type ReactNode,
   type Ref,
@@ -74,83 +72,6 @@ export function TextAreaField({ label, error, ...props }: TextAreaFieldProps) {
         {...props}
         id={id}
         rows={4}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={error ? `${id}-error` : undefined}
-        className={CONTROL_CLASS}
-      />
-    </FieldShell>
-  )
-}
-
-type NumberFieldProps = {
-  label: string
-  error?: string
-  name: string
-  value: number | undefined
-  onValueChange: (value: number | undefined) => void
-  onBlur: () => void
-  ref?: Ref<HTMLInputElement>
-}
-
-function toText(value: number | undefined): string {
-  return typeof value === 'number' && Number.isFinite(value) ? String(value) : ''
-}
-
-const DECIMAL_PATTERN = /^-?(\d+([.]\d*)?|[.]\d+)$/
-
-export function parseDecimal(raw: string): number | undefined {
-  const compact = raw.replace(/[\s\u00a0\u202f]/g, '')
-
-  if (compact === '') {
-    return undefined
-  }
-
-  const normalized = compact.replace(',', '.')
-
-  if (normalized.includes(',') || !DECIMAL_PATTERN.test(normalized)) {
-    return Number.NaN
-  }
-
-  return Number(normalized)
-}
-
-export function NumberField({
-  label,
-  error,
-  value,
-  onValueChange,
-  onBlur,
-  name,
-  ref,
-}: NumberFieldProps) {
-  const id = useId()
-  const [text, setText] = useState(() => toText(value))
-  const [lastValue, setLastValue] = useState(value)
-
-  if (!Object.is(lastValue, value)) {
-    setLastValue(value)
-
-    if (!Object.is(parseDecimal(text), value)) {
-      setText(toText(value))
-    }
-  }
-
-  const change = (event: ChangeEvent<HTMLInputElement>) => {
-    setText(event.target.value)
-    onValueChange(parseDecimal(event.target.value))
-  }
-
-  return (
-    <FieldShell id={id} label={label} error={error}>
-      <input
-        id={id}
-        name={name}
-        ref={ref}
-        type="text"
-        inputMode="decimal"
-        value={text}
-        onBlur={onBlur}
-        onChange={change}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? `${id}-error` : undefined}
         className={CONTROL_CLASS}

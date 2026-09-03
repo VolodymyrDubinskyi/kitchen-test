@@ -3,25 +3,21 @@ import { Controller, useForm } from 'react-hook-form'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 
-import { isImageSource, productInputSchema, type ProductInput } from '@kitchen/schemas'
+import {
+  isImageSource,
+  productFormSchema,
+  toProductFormValues,
+  type ProductFormValues,
+  type ProductInput,
+} from '@kitchen/schemas'
 
 import { useTranslation } from '../../../shared/i18n'
 import { Button } from '../../../shared/ui/button'
-import { NumberField, TextAreaField, TextField } from '../../../shared/ui/field'
+import { TextAreaField, TextField } from '../../../shared/ui/field'
 import { ProductImage } from './product-image'
 
-const EMPTY_VALUES = {
-  title: '',
-  description: '',
-  category: '',
-  price: undefined,
-  stock: undefined,
-  brand: '',
-  thumbnail: '',
-}
-
 type ProductFormProps = {
-  defaultValues?: Partial<ProductInput>
+  defaultValues?: ProductFormValues
   submitLabel: string
   pending: boolean
   uploading?: boolean
@@ -41,16 +37,19 @@ export function ProductForm({
 }: ProductFormProps) {
   const { t } = useTranslation('common')
 
-  const { control, handleSubmit, setValue, trigger, watch } = useForm<ProductInput>({
-    resolver: zodResolver(productInputSchema),
-    defaultValues: { ...EMPTY_VALUES, ...defaultValues },
+  const { control, handleSubmit, watch } = useForm<ProductFormValues, unknown, ProductInput>({
+    resolver: zodResolver(productFormSchema),
+    defaultValues: defaultValues ?? toProductFormValues(),
     mode: 'onBlur',
   })
 
   const thumbnail = watch('thumbnail')
   const preview = thumbnail && isImageSource(thumbnail) ? thumbnail : null
 
-  const pickImage = async (event: ChangeEvent<HTMLInputElement>) => {
+  const pickImage = async (
+    event: ChangeEvent<HTMLInputElement>,
+    onPicked: (url: string) => void,
+  ) => {
     const file = event.target.files?.[0]
 
     event.target.value = ''
@@ -60,8 +59,7 @@ export function ProductForm({
     }
 
     try {
-      setValue('thumbnail', await onUploadImage(file), { shouldDirty: true })
-      await trigger('thumbnail')
+      onPicked(await onUploadImage(file))
     } catch {
       return
     }
@@ -115,14 +113,13 @@ export function ProductForm({
           control={control}
           name="price"
           render={({ field, fieldState }) => (
-            <NumberField
+            <TextField
               label={t('form.price')}
+              type="number"
+              step="any"
+              min="0"
               error={fieldState.error?.message}
-              name={field.name}
-              ref={field.ref}
-              onBlur={field.onBlur}
-              value={field.value}
-              onValueChange={field.onChange}
+              {...field}
             />
           )}
         />
@@ -131,14 +128,13 @@ export function ProductForm({
           control={control}
           name="stock"
           render={({ field, fieldState }) => (
-            <NumberField
+            <TextField
               label={t('form.stock')}
+              type="number"
+              step="any"
+              min="0"
               error={fieldState.error?.message}
-              name={field.name}
-              ref={field.ref}
-              onBlur={field.onBlur}
-              value={field.value}
-              onValueChange={field.onChange}
+              {...field}
             />
           )}
         />
@@ -148,37 +144,39 @@ export function ProductForm({
         control={control}
         name="thumbnail"
         render={({ field, fieldState }) => (
-          <TextField
-            label={t('form.thumbnail')}
-            inputMode="url"
-            error={fieldState.error?.message}
-            {...field}
-          />
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-4">
+              <label className="flex flex-col gap-1 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                {uploading ? t('form.uploading') : t('form.image')}
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
+                  disabled={uploading || !onUploadImage}
+                  aria-invalid={fieldState.error ? true : undefined}
+                  onChange={event => void pickImage(event, field.onChange)}
+                  className="text-sm font-normal file:mr-3 file:rounded-md file:border-0 file:bg-zinc-900 file:px-3 file:py-2 file:text-sm file:text-white dark:file:bg-zinc-100 dark:file:text-zinc-900"
+                />
+              </label>
+
+              {preview ? (
+                <ProductImage
+                  src={preview}
+                  alt={t('form.imagePreview')}
+                  width={64}
+                  height={64}
+                  className="h-16 w-16 rounded-md object-cover"
+                />
+              ) : null}
+            </div>
+
+            {fieldState.error ? (
+              <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+                {fieldState.error.message}
+              </p>
+            ) : null}
+          </div>
         )}
       />
-
-      <div className="flex items-center gap-4">
-        <label className="flex flex-col gap-1 text-sm font-medium text-zinc-700 dark:text-zinc-300">
-          {uploading ? t('form.uploading') : t('form.uploadImage')}
-          <input
-            type="file"
-            accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
-            disabled={uploading || !onUploadImage}
-            onChange={event => void pickImage(event)}
-            className="text-sm font-normal file:mr-3 file:rounded-md file:border-0 file:bg-zinc-900 file:px-3 file:py-2 file:text-sm file:text-white dark:file:bg-zinc-100 dark:file:text-zinc-900"
-          />
-        </label>
-
-        {preview ? (
-          <ProductImage
-            src={preview}
-            alt={t('form.thumbnailPreview')}
-            width={64}
-            height={64}
-            className="h-16 w-16 rounded-md object-cover"
-          />
-        ) : null}
-      </div>
 
       <div className="flex gap-2">
         <Button type="submit" disabled={pending}>

@@ -48,14 +48,13 @@
     "price": "Price",
     "stock": "Stock",
     "brandOptional": "Brand (optional)",
-    "thumbnail": "Thumbnail URL",
     "submitCreate": "Create product",
     "submitUpdate": "Save changes",
     "submitting": "Saving…",
     "cancel": "Cancel",
-    "uploadImage": "Upload an image",
     "uploading": "Uploading…",
-    "thumbnailPreview": "Thumbnail preview"
+    "image": "Product image",
+    "imagePreview": "Product image preview"
   },
   "confirm": {
     "deleteTitle": "Delete this product?",

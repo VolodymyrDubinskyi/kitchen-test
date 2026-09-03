@@ -50,14 +50,13 @@
     "price": "Ціна",
     "stock": "Залишок",
     "brandOptional": "Бренд (необов’язково)",
-    "thumbnail": "Посилання на зображення",
     "submitCreate": "Створити товар",
     "submitUpdate": "Зберегти",
     "submitting": "Зберігаємо…",
     "cancel": "Скасувати",
-    "uploadImage": "Завантажити зображення",
     "uploading": "Завантажуємо…",
-    "thumbnailPreview": "Попередній перегляд"
+    "image": "Зображення товару",
+    "imagePreview": "Попередній перегляд зображення"
   },
   "confirm": {
     "deleteTitle": "Видалити товар?",

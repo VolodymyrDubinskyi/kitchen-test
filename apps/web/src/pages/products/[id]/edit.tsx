@@ -2,7 +2,12 @@ import type { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 
-import { productIdSchema, type Product, type ProductInput } from '@kitchen/schemas'
+import {
+  productIdSchema,
+  toProductFormValues,
+  type Product,
+  type ProductInput,
+} from '@kitchen/schemas'
 import { isApiError } from '@kitchen/utils'
 
 import { useProduct, useUpdateProduct, useUploadImage } from '../../../features/products/api/hooks'
@@ -43,18 +48,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async ctx => {
   }
 }
 
-function toInput(product: Product): Partial<ProductInput> {
-  return {
-    title: product.title,
-    description: product.description,
-    category: product.category,
-    price: product.price,
-    stock: product.stock,
-    brand: product.brand,
-    thumbnail: product.thumbnail,
-  }
-}
-
 export default function EditProductPage({
   id,
   initialProduct,
@@ -79,7 +72,7 @@ export default function EditProductPage({
         <p className="text-sm text-red-600 dark:text-red-400">{t('errors.loadProduct')}</p>
       ) : (
         <ProductForm
-          defaultValues={toInput(product)}
+          defaultValues={toProductFormValues(product)}
           submitLabel={t('form.submitUpdate')}
           pending={update.isPending}
           onCancel={goToProduct}
